@@ -1,0 +1,32 @@
+export class RegistroVenta {
+  constructor(
+    public ventaID: number,
+    public usuarioID: number,
+    public producto: string,
+    public numeroPortar: string | null,
+    public dn: string | null,
+    public nombres: string,
+    public apellidoPaterno: string,
+    public apellidoMaterno: string | null,
+    public fechaNacimiento: string | null,
+    public telfContacto1: string | null,
+    public telfContacto2: string | null,
+    public companiaDonante: string | null,
+    public tipoLinea: string | null,
+    public correoElectronico: string | null,
+    public numero: string | null,
+    public ine: string | null,
+    public curp: string | null,
+    public rfc: string | null,
+    public nip: string | null,
+    public metodoEntrega: string | null,
+    public ciclosFacturacion: string | null,
+    public plan: string | null,
+    public planOriginal: string | null,
+    public planDcto: string | null,
+    public observaciones: string | null,
+    public fechaInicioGestion: Date | string | null,
+    public fechaFinGestion: Date | string | null,
+    public fechaRegistro: Date | string | null
+  ) {}
+}

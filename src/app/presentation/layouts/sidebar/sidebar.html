@@ -1,0 +1,193 @@
+<aside [class]="'sidebar ' + (isCollapsed ? 'sidebar-collapsed' : 'sidebar-expanded')">
+
+  <!-- Header con logo y botones -->
+  <div class="sidebar-header">
+    <!-- Botón cerrar para móvil -->
+    @if (isMobile) {
+      <button
+        (click)="toggleSidebar()"
+        class="absolute left-4 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center text-gray-400 hover:text-white transition-colors">
+        <lucide-icon [img]="X" class="w-5 h-5" [strokeWidth]="2"></lucide-icon>
+      </button>
+    }
+
+    @if (!isCollapsed) {
+      <h1 class="sidebar-brand">MOVISTAR</h1>
+      <p class="sidebar-brand-subtitle">Sistema Gestión Ventas</p>
+    } @else {
+      <div class="flex justify-center">
+        <img src="assets/Mascota.webp" alt="Movistar" class="w-9 h-9 rounded-lg object-cover" />
+      </div>
+    }
+
+    <!-- Botón toggle collapse (solo desktop) -->
+    @if (!isMobile) {
+      <button
+        (click)="toggleSidebar()"
+        class="sidebar-toggle"
+        [attr.aria-label]="isCollapsed ? 'Expandir menú' : 'Colapsar menú'">
+        <lucide-icon [img]="isCollapsed ? ChevronRight : ChevronLeft" class="w-3 h-3" [strokeWidth]="3"></lucide-icon>
+      </button>
+    }
+  </div>
+
+  <!-- Navegación principal -->
+  <nav class="sidebar-nav" role="navigation" aria-label="Menú principal">
+
+    <!-- Dashboard -->
+    <a routerLink="/dashboard"
+       routerLinkActive="active"
+       class="sidebar-nav-item"
+       [title]="isCollapsed ? 'Dashboard' : ''">
+      <lucide-icon [img]="LayoutDashboard" class="sidebar-nav-icon" [strokeWidth]="2"></lucide-icon>
+      @if (!isCollapsed) {
+        <span class="sidebar-nav-text">Dashboard</span>
+      }
+    </a>
+
+    <!-- Separador: Gestión -->
+    @if (!isCollapsed) {
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">
+          <span class="sidebar-section-line"></span>
+          <span>Gestión</span>
+          <span class="sidebar-section-line"></span>
+        </div>
+      </div>
+    } @else {
+      <div class="my-3 mx-3 h-px bg-white/5"></div>
+    }
+
+    <!-- Tipificación -->
+    <a routerLink="/tipificacion"
+       routerLinkActive="active"
+       class="sidebar-nav-item"
+       [title]="isCollapsed ? 'Tipificación' : ''">
+      <lucide-icon [img]="ClipboardList" class="sidebar-nav-icon" [strokeWidth]="2"></lucide-icon>
+      @if (!isCollapsed) {
+        <span class="sidebar-nav-text">Tipificar</span>
+      }
+    </a>
+
+    <!-- Ventas Registradas -->
+    <a routerLink="/ventas-registradas"
+       routerLinkActive="active"
+       class="sidebar-nav-item"
+       [title]="isCollapsed ? 'Ventas Registradas' : ''">
+      <lucide-icon [img]="Database" class="sidebar-nav-icon" [strokeWidth]="2"></lucide-icon>
+      @if (!isCollapsed) {
+        <span class="sidebar-nav-text">Ventas Registradas</span>
+      }
+    </a>
+
+    <!-- Sección Usuarios - Admin y Coordinador pueden ver -->
+    @if (canViewAll()) {
+      @if (!isCollapsed) {
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">
+            <span class="sidebar-section-line"></span>
+            <span>Usuarios</span>
+            <span class="sidebar-section-line"></span>
+          </div>
+        </div>
+      } @else {
+        <div class="my-3 mx-3 h-px bg-white/5"></div>
+      }
+
+      <!-- Usuarios -->
+      <a routerLink="/usuarios"
+         routerLinkActive="active"
+         class="sidebar-nav-item"
+         [title]="isCollapsed ? 'Usuarios' : ''">
+        <lucide-icon [img]="Users" class="sidebar-nav-icon" [strokeWidth]="2"></lucide-icon>
+        @if (!isCollapsed) {
+          <span class="sidebar-nav-text">Usuarios</span>
+        }
+      </a>
+    }
+
+    <!-- Sección Configuraciones - Admin y Coordinador pueden ver -->
+    @if (canViewAll()) {
+      @if (!isCollapsed) {
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">
+            <span class="sidebar-section-line"></span>
+            <span>Configuraciones</span>
+            <span class="sidebar-section-line"></span>
+          </div>
+        </div>
+      } @else {
+        <div class="my-3 mx-3 h-px bg-white/5"></div>
+      }
+
+      <!-- Temáticos -->
+      <a routerLink="/tematicos"
+         routerLinkActive="active"
+         class="sidebar-nav-item"
+         [title]="isCollapsed ? 'Temáticos' : ''">
+        <lucide-icon [img]="BookCheck" class="sidebar-nav-icon" [strokeWidth]="2"></lucide-icon>
+        @if (!isCollapsed) {
+          <span class="sidebar-nav-text">Temático</span>
+        }
+      </a>
+
+      <!-- Generales -->
+      <a routerLink="/generales"
+         routerLinkActive="active"
+         class="sidebar-nav-item"
+         [title]="isCollapsed ? 'Generales' : ''">
+        <lucide-icon [img]="Settings2" class="sidebar-nav-icon" [strokeWidth]="2"></lucide-icon>
+        @if (!isCollapsed) {
+          <span class="sidebar-nav-text">Generales</span>
+        }
+      </a>
+    }
+
+  </nav>
+
+  <!-- Footer con usuario -->
+  <div class="sidebar-footer">
+    @if (!isCollapsed) {
+      <!-- Usuario info expandido -->
+      <div class="sidebar-user-card">
+        <div class="flex items-center gap-3">
+          <div class="sidebar-user-avatar">
+            <span>{{ userAvatar() }}</span>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="sidebar-user-name">{{ userName() }}</p>
+            <p class="sidebar-user-role">{{ userRole() }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Botón logout expandido -->
+      <button
+        (click)="logout()"
+        class="sidebar-logout-btn group"
+        aria-label="Cerrar sesión">
+        <lucide-icon [img]="LogOut" class="w-4 h-4 group-hover:translate-x-0.5 transition-transform" [strokeWidth]="2"></lucide-icon>
+        <span class="font-medium text-sm">Cerrar Sesión</span>
+      </button>
+    } @else {
+      <!-- Usuario info colapsado -->
+      <div class="flex flex-col gap-2 items-center">
+        <button
+          [title]="userName()"
+          class="sidebar-user-avatar hover:scale-110 transition-transform"
+          aria-label="Perfil de usuario">
+          <span class="text-sm">{{ userAvatar() }}</span>
+        </button>
+
+        <button
+          (click)="logout()"
+          title="Cerrar Sesión"
+          class="w-10 h-10 rounded-lg flex items-center justify-center group transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-500/50 cursor-pointer"
+          style="background: rgba(239, 68, 68, 0.1); color: #F87171;"
+          aria-label="Cerrar sesión">
+          <lucide-icon [img]="LogOut" class="w-4 h-4 group-hover:translate-x-0.5 transition-transform" [strokeWidth]="2"></lucide-icon>
+        </button>
+      </div>
+    }
+  </div>
+</aside>

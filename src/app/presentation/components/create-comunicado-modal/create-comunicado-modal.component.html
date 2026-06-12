@@ -1,0 +1,292 @@
+<app-modal
+  [isOpen]="isOpen()"
+  [title]="'Centro de Comunicados'"
+  [size]="'lg'"
+  (closeModal)="onClose()">
+
+  <!-- Tabs -->
+  <div class="flex border-b border-gray-200 -mt-2 mb-4">
+    <button
+      (click)="setTab('nuevo')"
+      class="flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors cursor-pointer"
+      [class.border-primary]="activeTab === 'nuevo'"
+      [class.text-primary]="activeTab === 'nuevo'"
+      [class.border-transparent]="activeTab !== 'nuevo'"
+      [class.text-gray-500]="activeTab !== 'nuevo'"
+      [class.hover:text-gray-700]="activeTab !== 'nuevo'">
+      <lucide-icon [img]="PlusCircleIcon" class="size-4" [strokeWidth]="1.5"></lucide-icon>
+      <span>Nuevo</span>
+    </button>
+    <button
+      (click)="setTab('historial')"
+      class="flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors cursor-pointer"
+      [class.border-primary]="activeTab === 'historial'"
+      [class.text-primary]="activeTab === 'historial'"
+      [class.border-transparent]="activeTab !== 'historial'"
+      [class.text-gray-500]="activeTab !== 'historial'"
+      [class.hover:text-gray-700]="activeTab !== 'historial'">
+      <lucide-icon [img]="HistoryIcon" class="size-4" [strokeWidth]="1.5"></lucide-icon>
+      <span>Mis Comunicados</span>
+      @if (misComunicados.length > 0) {
+        <span class="bg-gray-100 text-gray-600 text-xs px-1.5 py-0.5 rounded-full">{{ misComunicados.length }}</span>
+      }
+    </button>
+  </div>
+
+  <!-- Tab: Nuevo Comunicado -->
+  @if (activeTab === 'nuevo') {
+    <div class="space-y-5">
+      <!-- Header decorativo -->
+      <div class="flex items-center gap-3 pb-4 border-b border-gray-100">
+        <div class="p-2 bg-primary/10 rounded-lg">
+          <lucide-icon [img]="MegaphoneIcon" class="size-6 text-primary" [strokeWidth]="1.5"></lucide-icon>
+        </div>
+        <div>
+          <h4 class="font-semibold text-gray-900">Enviar comunicado</h4>
+          <p class="text-sm text-gray-500">Los usuarios recibirán una notificación en tiempo real</p>
+        </div>
+      </div>
+
+      <!-- Título -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1.5">
+          Título <span class="text-red-500">*</span>
+        </label>
+        <input
+          type="text"
+          [(ngModel)]="titulo"
+          maxlength="200"
+          placeholder="Escribe un título para el comunicado..."
+          class="w-full px-4 py-2.5 input placeholder:text-slate-400">
+        <p class="mt-1 text-xs text-gray-400 text-right">{{ titulo.length }}/200</p>
+      </div>
+
+      <!-- Mensaje -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1.5">
+          Mensaje <span class="text-red-500">*</span>
+        </label>
+        <textarea
+          [(ngModel)]="mensaje"
+          rows="4"
+          placeholder="Escribe el contenido del comunicado..."
+          class="w-full px-4 py-2.5 input resize-none placeholder:text-slate-400"></textarea>
+      </div>
+
+      <!-- Destinatarios -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-3">
+          Destinatarios
+        </label>
+
+        <!-- Toggle enviar a todos -->
+        <div class="flex items-center gap-3 mb-4">
+          <button
+            type="button"
+            (click)="enviarATodos = true"
+            class="flex items-center gap-2 px-4 py-2 rounded-lg border-2 transition-all duration-200 cursor-pointer"
+            [class.border-primary]="enviarATodos"
+            [class.bg-primary/5]="enviarATodos"
+            [class.border-gray-200]="!enviarATodos"
+            [class.hover:border-gray-300]="!enviarATodos">
+            <lucide-icon [img]="UsersIcon" class="size-4" [class.text-primary]="enviarATodos" [strokeWidth]="1.5"></lucide-icon>
+            <span class="text-sm font-medium" [class.text-primary]="enviarATodos">Todos los ejecutivos</span>
+          </button>
+          <button
+            type="button"
+            (click)="enviarATodos = false"
+            class="flex items-center gap-2 px-4 py-2 rounded-lg border-2 transition-all duration-200 cursor-pointer"
+            [class.border-primary]="!enviarATodos"
+            [class.bg-primary/5]="!enviarATodos"
+            [class.border-gray-200]="enviarATodos"
+            [class.hover:border-gray-300]="enviarATodos">
+            <span class="text-sm font-medium" [class.text-primary]="!enviarATodos">Seleccionar usuarios</span>
+          </button>
+        </div>
+
+        <!-- Lista de usuarios (solo si no es enviar a todos) -->
+        @if (!enviarATodos) {
+          <div class="border border-gray-200 rounded-lg overflow-hidden">
+            <!-- Header de selección -->
+            <div class="px-4 py-2 bg-gray-50 border-b border-gray-200 flex items-center justify-between">
+              <span class="text-xs text-gray-500">
+                {{ usuariosSeleccionados.length }} de {{ usuariosRol3.length }} seleccionados
+              </span>
+              <div class="flex gap-2">
+                <button
+                  type="button"
+                  (click)="seleccionarTodos()"
+                  class="text-xs text-primary hover:text-primary/80 font-medium cursor-pointer">
+                  Seleccionar todos
+                </button>
+                <span class="text-gray-300">|</span>
+                <button
+                  type="button"
+                  (click)="deseleccionarTodos()"
+                  class="text-xs text-gray-500 hover:text-gray-700 font-medium cursor-pointer">
+                  Limpiar
+                </button>
+              </div>
+            </div>
+
+            <!-- Lista scrolleable -->
+            <div class="max-h-48 overflow-y-auto">
+              @if (loadingUsuarios()) {
+                <div class="flex items-center justify-center py-6">
+                  <lucide-icon [img]="Loader2Icon" class="size-5 text-primary animate-spin" [strokeWidth]="2"></lucide-icon>
+                </div>
+              } @else if (usuariosRol3.length === 0) {
+                <div class="text-center py-6 text-gray-400 text-sm">
+                  No hay ejecutivos disponibles
+                </div>
+              } @else {
+                @for (usuario of usuariosRol3; track usuario.usuarioID) {
+                  <label
+                    class="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0">
+                    <input
+                      type="checkbox"
+                      [checked]="isUsuarioSeleccionado(usuario.usuarioID)"
+                      (change)="toggleUsuario(usuario.usuarioID)"
+                      class="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary/20 cursor-pointer">
+                    <span class="text-sm text-gray-700">{{ usuario.nombreCompleto }}</span>
+                  </label>
+                }
+              }
+            </div>
+          </div>
+
+          @if (!enviarATodos && usuariosSeleccionados.length === 0) {
+            <p class="mt-2 text-xs text-amber-600">
+              Selecciona al menos un usuario para enviar el comunicado
+            </p>
+          }
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Tab: Historial -->
+  @if (activeTab === 'historial') {
+    <div>
+      <!-- Header -->
+      <div class="flex items-center gap-3 pb-4 border-b border-gray-100 mb-4">
+        <div class="p-2 bg-blue-50 rounded-lg">
+          <lucide-icon [img]="BarChart3Icon" class="size-6 text-blue-600" [strokeWidth]="1.5"></lucide-icon>
+        </div>
+        <div>
+          <h4 class="font-semibold text-gray-900">Mis últimos comunicados</h4>
+          <p class="text-sm text-gray-500">Historial y estadísticas de lectura</p>
+        </div>
+      </div>
+
+      <!-- Lista de comunicados -->
+      <div class="space-y-3 max-h-96 overflow-y-auto">
+        @if (loadingHistorial()) {
+          <div class="flex items-center justify-center py-8">
+            <lucide-icon [img]="Loader2Icon" class="size-6 text-primary animate-spin" [strokeWidth]="2"></lucide-icon>
+          </div>
+        } @else if (misComunicados.length === 0) {
+          <div class="text-center py-8 text-gray-400">
+            <lucide-icon [img]="MegaphoneIcon" class="size-12 mx-auto mb-2 opacity-50" [strokeWidth]="1"></lucide-icon>
+            <p class="text-sm">No has enviado comunicados aún</p>
+          </div>
+        } @else {
+          @for (comunicado of misComunicados; track comunicado.comunicadoID) {
+            <div class="p-4 bg-gray-50 rounded-lg border border-gray-100 hover:border-gray-200 transition-colors">
+              <!-- Header del comunicado -->
+              <div class="flex items-start justify-between gap-3 mb-2">
+                <h5 class="font-medium text-gray-900 text-sm line-clamp-1">{{ comunicado.titulo }}</h5>
+                <span class="text-xs text-gray-400 whitespace-nowrap">{{ formatDate(comunicado.fechaCreacion) }}</span>
+              </div>
+
+              <!-- Mensaje truncado -->
+              <p class="text-xs text-gray-500 line-clamp-2 mb-3">{{ comunicado.mensaje }}</p>
+
+              <!-- Estadísticas de lectura -->
+              @if (comunicado.totalEnviados && comunicado.totalEnviados > 0) {
+                <div class="space-y-2">
+                  <!-- Barra de progreso -->
+                  <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+                    <div
+                      class="h-full bg-gradient-to-r from-green-400 to-green-500 rounded-full transition-all duration-500"
+                      [style.width.%]="getPorcentajeLeidos(comunicado)">
+                    </div>
+                  </div>
+
+                  <!-- Stats -->
+                  <div class="flex items-center justify-between text-xs">
+                    <div class="flex items-center gap-3">
+                      <span class="flex items-center gap-1 text-green-600">
+                        <lucide-icon [img]="EyeIcon" class="size-3.5" [strokeWidth]="2"></lucide-icon>
+                        {{ comunicado.totalLeidos || 0 }} leídos
+                      </span>
+                      <span class="flex items-center gap-1 text-gray-400">
+                        <lucide-icon [img]="EyeOffIcon" class="size-3.5" [strokeWidth]="2"></lucide-icon>
+                        {{ (comunicado.totalEnviados || 0) - (comunicado.totalLeidos || 0) }} pendientes
+                      </span>
+                    </div>
+                    <span class="font-medium text-gray-600">
+                      {{ getPorcentajeLeidos(comunicado) }}%
+                    </span>
+                  </div>
+                </div>
+              } @else {
+                <!-- Sin estadísticas - mostrar estado de envío -->
+                <div class="flex items-center justify-between text-xs">
+                  <div class="flex items-center gap-2 text-green-600">
+                    <lucide-icon [img]="SendIcon" class="size-3.5" [strokeWidth]="2"></lucide-icon>
+                    <span>Comunicado enviado</span>
+                  </div>
+                  <span class="text-gray-400 italic">Estadísticas pendientes del servidor</span>
+                </div>
+              }
+            </div>
+          }
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Footer - Single footer that changes based on activeTab -->
+  <ng-container modal-footer>
+    @if (activeTab === 'nuevo') {
+      <div class="flex items-center justify-end gap-3">
+        <button
+          type="button"
+          (click)="onClose()"
+          class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
+          Cancelar
+        </button>
+        <button
+          type="button"
+          (click)="enviar()"
+          [disabled]="!isValid || loading()"
+          class="flex items-center gap-2 px-5 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">
+          @if (loading()) {
+            <lucide-icon [img]="Loader2Icon" class="size-4 animate-spin" [strokeWidth]="2"></lucide-icon>
+            <span>Enviando...</span>
+          } @else {
+            <lucide-icon [img]="SendIcon" class="size-4" [strokeWidth]="1.5"></lucide-icon>
+            <span>Enviar comunicado</span>
+          }
+        </button>
+      </div>
+    } @else {
+      <div class="flex items-center justify-end gap-3">
+        <button
+          type="button"
+          (click)="onClose()"
+          class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
+          Cerrar
+        </button>
+        <button
+          type="button"
+          (click)="setTab('nuevo')"
+          class="flex items-center gap-2 px-5 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary/90 transition-colors cursor-pointer">
+          <lucide-icon [img]="PlusCircleIcon" class="size-4" [strokeWidth]="1.5"></lucide-icon>
+          <span>Nuevo comunicado</span>
+        </button>
+      </div>
+    }
+  </ng-container>
+</app-modal>

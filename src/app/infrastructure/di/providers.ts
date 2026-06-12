@@ -1,0 +1,71 @@
+import { Provider } from '@angular/core';
+import { AuthRepository } from '../../domain/repositories/auth.repository';
+import { PerfilRepository } from '../../domain/repositories/perfil.repository';
+import { UsuarioRepository } from '../../domain/repositories/usuario.repository';
+import { CalendarioRepository } from '../../domain/repositories/calendario.repository';
+import { TipificacionCalendarioRepository } from '../../domain/repositories/tipificacion-calendario.repository';
+import { RolRepository } from '../../domain/repositories/rol.repository';
+import { UsuarioCalendarioRepository } from '../../domain/repositories/usuario-calendario.repository';
+import { UsuarioTipificacionRepository } from '../../domain/repositories/usuario-tipificacion.repository';
+import { TematicosRepository } from '../../domain/repositories/tematicos.repository';
+import { RegistroVentaRepository } from '../../domain/repositories/registro-venta.repository';
+import { ComunicadoRepository } from '../../domain/repositories/comunicado.repository';
+import { NotificacionBackendRepository } from '../../domain/repositories/notificacion-backend.repository';
+import { DashboardRepository } from '../../domain/repositories/dashboard.repository';
+import { TipoLineaRepository } from '../../domain/repositories/tipo-linea.repository';
+import { MetodoEntregaRepository } from '../../domain/repositories/metodo-entrega.repository';
+import { CicloFacturacionRepository } from '../../domain/repositories/ciclo-facturacion.repository';
+import { PlanRepository } from '../../domain/repositories/plan.repository';
+import { PlanOriginalRepository } from '../../domain/repositories/plan-original.repository';
+import { PlanDsctoRepository } from '../../domain/repositories/plan-dscto.repository';
+import { EstadoMexicoRepository } from '../../domain/repositories/estado-mexico.repository';
+import { DireccionEntregaRepository } from '../../domain/repositories/direccion-entrega.repository';
+import { DireccionFacturacionRepository } from '../../domain/repositories/direccion-facturacion.repository';
+
+import { AuthRepositoryImpl } from '../../data/repositories/auth.repository.impl';
+import { PerfilRepositoryImpl } from '../../data/repositories/perfil.repository.impl';
+import { UsuarioRepositoryImpl } from '../../data/repositories/usuario.repository.impl';
+import { CalendarioRepositoryImpl } from '../../data/repositories/calendario.repository.impl';
+import { TipificacionCalendarioRepositoryImpl } from '../../data/repositories/tipificacion-calendario.repository.impl';
+import { RolRepositoryImpl } from '../../data/repositories/rol.repository.impl';
+import { UsuarioCalendarioRepositoryImpl } from '../../data/repositories/usuario-calendario.repository.impl';
+import { UsuarioTipificacionRepositoryImpl } from '../../data/repositories/usuario-tipificacion.repository.impl';
+import { TematicosRepositoryImpl } from '../../data/repositories/tematicos.repository.impl';
+import { RegistroVentaRepositoryImpl } from '../../data/repositories/registro-venta.repository.impl';
+import { ComunicadoRepositoryImpl } from '../../data/repositories/comunicado.repository.impl';
+import { NotificacionBackendRepositoryImpl } from '../../data/repositories/notificacion-backend.repository.impl';
+import { DashboardRepositoryImpl } from '../../data/repositories/dashboard.repository.impl';
+import { TipoLineaRepositoryImpl } from '../../data/repositories/tipo-linea.repository.impl';
+import { MetodoEntregaRepositoryImpl } from '../../data/repositories/metodo-entrega.repository.impl';
+import { CicloFacturacionRepositoryImpl } from '../../data/repositories/ciclo-facturacion.repository.impl';
+import { PlanRepositoryImpl } from '../../data/repositories/plan.repository.impl';
+import { PlanOriginalRepositoryImpl } from '../../data/repositories/plan-original.repository.impl';
+import { PlanDsctoRepositoryImpl } from '../../data/repositories/plan-dscto.repository.impl';
+import { EstadoMexicoRepositoryImpl } from '../../data/repositories/estado-mexico.repository.impl';
+import { DireccionEntregaRepositoryImpl } from '../../data/repositories/direccion-entrega.repository.impl';
+import { DireccionFacturacionRepositoryImpl } from '../../data/repositories/direccion-facturacion.repository.impl';
+
+export const repositoryProviders: Provider[] = [
+  { provide: AuthRepository,                  useClass: AuthRepositoryImpl },
+  { provide: PerfilRepository,                useClass: PerfilRepositoryImpl },
+  { provide: UsuarioRepository,               useClass: UsuarioRepositoryImpl },
+  { provide: CalendarioRepository,            useClass: CalendarioRepositoryImpl },
+  { provide: TipificacionCalendarioRepository,useClass: TipificacionCalendarioRepositoryImpl },
+  { provide: RolRepository,                   useClass: RolRepositoryImpl },
+  { provide: UsuarioCalendarioRepository,     useClass: UsuarioCalendarioRepositoryImpl },
+  { provide: UsuarioTipificacionRepository,   useClass: UsuarioTipificacionRepositoryImpl },
+  { provide: TematicosRepository,             useClass: TematicosRepositoryImpl },
+  { provide: RegistroVentaRepository,         useClass: RegistroVentaRepositoryImpl },
+  { provide: ComunicadoRepository,            useClass: ComunicadoRepositoryImpl },
+  { provide: NotificacionBackendRepository,   useClass: NotificacionBackendRepositoryImpl },
+  { provide: DashboardRepository,             useClass: DashboardRepositoryImpl },
+  { provide: TipoLineaRepository,             useClass: TipoLineaRepositoryImpl },
+  { provide: MetodoEntregaRepository,         useClass: MetodoEntregaRepositoryImpl },
+  { provide: CicloFacturacionRepository,      useClass: CicloFacturacionRepositoryImpl },
+  { provide: PlanRepository,                  useClass: PlanRepositoryImpl },
+  { provide: PlanOriginalRepository,          useClass: PlanOriginalRepositoryImpl },
+  { provide: PlanDsctoRepository,             useClass: PlanDsctoRepositoryImpl },
+  { provide: EstadoMexicoRepository,          useClass: EstadoMexicoRepositoryImpl },
+  { provide: DireccionEntregaRepository,      useClass: DireccionEntregaRepositoryImpl },
+  { provide: DireccionFacturacionRepository,  useClass: DireccionFacturacionRepositoryImpl },
+];

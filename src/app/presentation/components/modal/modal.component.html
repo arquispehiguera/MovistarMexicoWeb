@@ -1,0 +1,48 @@
+@if (isOpen()) {
+<!-- Backdrop -->
+<div
+  class="modal-backdrop fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 transition-opacity duration-200 animate-jump-in
+"
+  [class.opacity-0]="isClosing()"
+  [class.opacity-100]="!isClosing()"
+  (click)="onBackdropClick($event)"
+>
+  <!-- Modal Container -->
+  <div
+    class="bg-white dark:bg-gray-800 rounded-lg shadow-2xl w-full transition-all duration-200 transform " 
+    [class]="getSizeClasses()"
+    [class.scale-95]="isClosing()"
+    [class.opacity-0]="isClosing()"
+    [class.scale-100]="!isClosing()"
+    [class.opacity-100]="!isClosing()"
+    (click)="$event.stopPropagation()"
+  >
+    <!-- Header -->
+    <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+      <h2 class="text-md font-semibold text-gray-900 dark:text-white justify-center flex w-full">
+        {{ title() }}
+      </h2>
+
+      @if (showCloseButton()) {
+      <button
+        type="button"
+        (click)="onClose()"
+        class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
+      >
+        <lucide-icon [img]="XIcon" class="w-5 h-5" [strokeWidth]="2"></lucide-icon>
+      </button>
+      }
+    </div>
+
+    <!-- Body -->
+    <div class="p-4 overflow-y-auto max-h-[calc(100vh-200px)]">
+      <ng-content></ng-content>
+    </div>
+
+    <!-- Footer (optional, projected content) -->
+    <div class="border-t border-gray-200 dark:border-gray-700 p-3">
+      <ng-content select="[modal-footer]"></ng-content>
+    </div>
+  </div>
+</div>
+}

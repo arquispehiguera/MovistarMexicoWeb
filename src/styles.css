@@ -1,1 +1,1120 @@
 /* You can add global styles to this file, and also import other style files */
+
+@import "tailwindcss";
+@config "../tailwind.config.cjs";
+@import "tailwindcss-animated";
+@import "@ng-select/ng-select/themes/default.theme.css";
+@import "flatpickr/dist/flatpickr.min.css";
+@import "driver.js/dist/driver.css";   
+
+:root {
+  /* Paleta Movistar Oficial */
+  --movistar-blue: #009EF7;
+  --movistar-blue-light: #33B1F8;
+  --movistar-blue-dark: #007ACC;
+  --movistar-green: #5CB615;
+  --movistar-magenta: #E63780;
+
+  /* Alias para compatibilidad */
+  --color-primary: var(--movistar-blue);
+  --color-primary-light: var(--movistar-blue-light);
+  --color-primary-dark: var(--movistar-blue-dark);
+
+  /* Neutrales */
+  --gray-50: #F9FAFB;
+  --gray-100: #F3F4F6;
+  --gray-200: #E5E7EB;
+  --gray-300: #D1D5DB;
+  --gray-400: #9CA3AF;
+  --gray-500: #6B7280;
+  --gray-600: #4B5563;
+  --gray-700: #374151;
+  --gray-800: #1F2937;
+  --gray-900: #111827;
+
+  /* Semánticos */
+  --success: #16A34A;
+  --danger: #DC2626;
+  --warning: #F59E0B;
+  --info: #0EA5E9;
+
+  /* Escala tipográfica base (mobile-first) */
+  --text-xs: 0.75rem;      /* 12px */
+  --text-sm: 0.875rem;     /* 14px */
+  --text-base: 1rem;       /* 16px */
+  --text-lg: 1.125rem;     /* 18px */
+  --text-xl: 1.25rem;      /* 20px */
+  --text-2xl: 1.5rem;      /* 24px */
+  --text-3xl: 1.875rem;    /* 30px */
+  --text-4xl: 2.25rem;     /* 36px */
+
+  /* Espaciado consistente */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-2xl: 3rem;
+}
+
+/* Escala tipográfica responsive - Tablet */
+@media (min-width: 768px) {
+  :root {
+    --text-xl: 1.375rem;   /* 22px */
+    --text-2xl: 1.625rem;  /* 26px */
+    --text-3xl: 2rem;      /* 32px */
+    --text-4xl: 2.5rem;    /* 40px */
+  }
+}
+
+/* Escala tipográfica responsive - Desktop */
+@media (min-width: 1024px) {
+  :root {
+    --text-xl: 1.5rem;     /* 24px */
+    --text-2xl: 1.875rem;  /* 30px */
+    --text-3xl: 2.25rem;   /* 36px */
+    --text-4xl: 3rem;      /* 48px */
+  }
+}
+
+html, body { height: 100%; }
+body {
+  margin: 0;
+  font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: var(--text-base);
+  line-height: 1.5;
+  color: var(--gray-900);
+}
+
+/********************************* Accesibilidad - Focus Visible ******************************************/
+/* Focus ring global para todos los elementos interactivos */
+*:focus-visible {
+  outline: 2px solid var(--movistar-blue);
+  outline-offset: 2px;
+}
+
+/* Evitar outline en clicks de mouse pero mantenerlo para navegación por teclado */
+button:focus:not(:focus-visible),
+a:focus:not(:focus-visible),
+input:focus:not(:focus-visible),
+select:focus:not(:focus-visible),
+textarea:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Skip to main content link (accesibilidad) */
+.skip-link {
+  @apply absolute -top-10 left-0 bg-primary text-white px-4 py-2 z-[10000]
+         focus:top-0 transition-all;
+}
+
+/* Mejoras de contraste para textos secundarios */
+.text-muted {
+  color: var(--gray-600); /* Ratio 7:1 con fondo blanco */
+}
+
+/* Tipografía de marca - Open Sans (alternativa a Telefónica) */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+h1 { font-size: var(--text-4xl); }
+h2 { font-size: var(--text-3xl); }
+h3 { font-size: var(--text-2xl); }
+h4 { font-size: var(--text-xl); }
+h5 { font-size: var(--text-lg); }
+h6 { font-size: var(--text-base); }
+
+/* Clases tipográficas responsive - Mística */
+.text-display {
+  font-size: var(--text-4xl);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.text-headline {
+  font-size: var(--text-3xl);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+
+.text-title {
+  font-size: var(--text-2xl);
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.text-subtitle {
+  font-size: var(--text-xl);
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.text-body-large {
+  font-size: var(--text-lg);
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+.text-body {
+  font-size: var(--text-base);
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+.text-body-small {
+  font-size: var(--text-sm);
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+.text-caption {
+  font-size: var(--text-xs);
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+.text-overline {
+  font-size: var(--text-xs);
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+/* Botones - Mística Design System */
+.button {
+  @apply bg-primary text-white rounded-lg transition-all cursor-pointer
+         text-sm font-semibold py-2.5 px-5 active:scale-[0.98]
+         hover:bg-primary-dark hover:-translate-y-0.5
+         focus:outline-none focus:ring-2 focus:ring-primary/30 focus:ring-offset-2
+         disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0;
+}
+
+.button-secondary {
+  @apply bg-white text-primary rounded-lg transition-all cursor-pointer
+         text-sm font-semibold py-2.5 px-5 border-2 border-primary
+         active:scale-[0.98] hover:bg-primary/5
+         focus:outline-none focus:ring-2 focus:ring-primary/30 focus:ring-offset-2
+         disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.button-ghost {
+  @apply bg-transparent text-primary rounded-lg transition-all cursor-pointer
+         text-sm font-semibold py-2.5 px-5
+         active:scale-[0.98] hover:bg-primary/10
+         focus:outline-none focus:ring-2 focus:ring-primary/30;
+}
+
+.button-danger {
+  @apply bg-danger text-white rounded-lg transition-all cursor-pointer
+         text-sm font-semibold py-2.5 px-5 active:scale-[0.98]
+         hover:bg-danger-dark hover:-translate-y-0.5
+         focus:outline-none focus:ring-2 focus:ring-danger/30 focus:ring-offset-2;
+}
+
+/* Tamaños de botón */
+.button-sm {
+  @apply py-1.5 px-3 text-xs;
+}
+
+.button-lg {
+  @apply py-3 px-6 text-base;
+}
+
+/********************************* Badge/Pill Styles - Mística ******************************************/
+.badge {
+  @apply inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-full
+         border transition-colors;
+}
+
+/* Variantes de color */
+.badge-primary {
+  @apply bg-primary/10 text-primary-dark border-primary/30;
+}
+
+.badge-secondary {
+  @apply bg-gray-100 text-gray-700 border-gray-300;
+}
+
+.badge-success {
+  @apply bg-green-100 text-green-700 border-green-300;
+}
+
+.badge-danger {
+  @apply bg-red-100 text-red-700 border-red-300;
+}
+
+.badge-warning {
+  @apply bg-amber-100 text-amber-700 border-amber-300;
+}
+
+.badge-info {
+  @apply bg-sky-100 text-sky-700 border-sky-300;
+}
+
+.badge-purple {
+  @apply bg-purple-100 text-purple-700 border-purple-300;
+}
+
+/* Badge con punto indicador */
+.badge-dot::before {
+  content: '';
+  @apply w-2 h-2 rounded-full bg-current;
+}
+
+/* Status indicators */
+.status-online {
+  @apply w-3 h-3 rounded-full bg-green-500 animate-pulse;
+}
+
+.status-offline {
+  @apply w-3 h-3 rounded-full bg-gray-400;
+}
+
+.status-busy {
+  @apply w-3 h-3 rounded-full bg-amber-500;
+}
+
+/********************************* Card Styles - Mística ******************************************/
+.card {
+  @apply bg-white rounded-xl border border-gray-100 shadow-sm;
+}
+
+.card-body {
+  @apply p-5;
+}
+
+.card-header {
+  @apply px-5 py-4 border-b border-gray-100;
+}
+
+.card-footer {
+  @apply px-5 py-4 border-t border-gray-100 bg-gray-50/50 rounded-b-xl;
+}
+
+.card-title {
+  @apply text-lg font-semibold text-gray-900;
+}
+
+/* Card con hover */
+.card-interactive {
+  @apply bg-white rounded-xl border border-gray-100 shadow-sm
+         transition-all duration-200
+         hover:shadow-md hover:border-gray-200 hover:-translate-y-0.5
+         cursor-pointer;
+}
+
+/* Card KPI */
+.card-kpi {
+  @apply bg-white rounded-xl border border-gray-100 shadow-sm
+         p-5 flex items-center gap-4;
+}
+
+.card-kpi-icon {
+  @apply w-12 h-12 rounded-xl flex items-center justify-center;
+}
+
+.card-kpi-value {
+  @apply text-2xl font-bold text-gray-900;
+}
+
+.card-kpi-label {
+  @apply text-sm text-gray-500;
+}
+
+/********************************* Table Styles - Mística Design System ******************************************/
+/* Contenedor de tabla */
+.table-container {
+  @apply bg-white rounded-xl border border-gray-200 overflow-hidden;
+}
+
+/* Toolbar/Header de tabla */
+.table-toolbar {
+  @apply p-3 flex flex-wrap gap-2 items-center border-b border-gray-100 bg-gray-50/50;
+}
+
+.table-search {
+  @apply flex-1 min-w-[180px] relative;
+}
+
+.table-search-icon {
+  @apply absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none;
+}
+
+.table-search-input {
+  @apply w-full pl-10 pr-8 py-1.5 text-xs rounded-md border border-gray-200 bg-white
+         placeholder:text-gray-400 focus:border-primary focus:ring-2 focus:ring-primary/20
+         transition-all;
+}
+
+.table-actions {
+  @apply flex items-center gap-1.5;
+}
+
+/* Material Table Override - Mística */
+.mat-mdc-table {
+  @apply w-full bg-transparent;
+}
+
+/* Header de tabla */
+.mat-mdc-header-row {
+  @apply bg-primary border-b-0;
+  height: 36px !important;
+}
+
+.mat-mdc-header-cell {
+  @apply text-[11px] font-semibold text-white uppercase tracking-wider border-b-0;
+  padding: 0 10px !important;
+}
+
+/* Filas de datos */
+.mat-mdc-row {
+  @apply border-b border-gray-100 transition-colors duration-150;
+  height: 40px !important;
+}
+
+.mat-mdc-row:hover {
+  @apply bg-gray-50/70;
+}
+
+/* Zebra striping opcional */
+.table-striped .mat-mdc-row:nth-child(even) {
+  @apply bg-gray-50/40;
+}
+
+.table-striped .mat-mdc-row:nth-child(even):hover {
+  @apply bg-gray-100/60;
+}
+
+/* Celdas */
+.mat-mdc-cell {
+  @apply text-xs text-gray-700 border-b-0;
+  padding: 6px 10px !important;
+}
+
+/* Primera columna con más peso visual */
+.mat-mdc-cell:first-child {
+  @apply font-medium text-gray-900;
+}
+
+/* Columna de acciones */
+.table-actions-cell {
+  @apply flex items-center justify-end gap-2;
+}
+
+/* Botón de acción en tabla */
+.table-action-btn {
+  @apply inline-flex items-center justify-center gap-1 px-2 py-1
+         text-[11px] font-medium rounded-md transition-all duration-200;
+}
+
+.table-action-btn-primary {
+  @apply bg-primary/10 text-primary hover:bg-primary hover:text-white;
+}
+
+.table-action-btn-secondary {
+  @apply bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-800;
+}
+
+.table-action-btn-danger {
+  @apply bg-red-50 text-red-600 hover:bg-red-500 hover:text-white;
+}
+
+/* Icon button en tabla */
+.table-icon-btn {
+  @apply w-8 h-8 inline-flex items-center justify-center rounded-lg
+         transition-all duration-200 text-gray-400 hover:text-gray-600 hover:bg-gray-100;
+}
+
+/* Empty state */
+.table-empty {
+  @apply flex flex-col items-center justify-center py-10 px-4;
+}
+
+.table-empty-icon {
+  @apply w-12 h-12 text-gray-300 mb-3;
+}
+
+.table-empty-title {
+  @apply text-sm font-semibold text-gray-700 mb-0.5;
+}
+
+.table-empty-description {
+  @apply text-xs text-gray-500 text-center max-w-sm;
+}
+
+/* Paginación - Mística */
+.table-pagination {
+  @apply flex flex-col md:flex-row items-center justify-between gap-3
+         px-3 py-2 border-t border-gray-100 bg-gray-50/30;
+}
+
+.table-pagination-info {
+  @apply text-xs text-gray-600;
+}
+
+.table-pagination-controls {
+  @apply flex items-center gap-0.5;
+}
+
+.table-pagination-btn {
+  @apply px-2 py-1 text-xs font-medium rounded-md transition-all duration-200
+         border border-gray-200 bg-white text-gray-600
+         hover:bg-gray-50 hover:border-gray-300
+         disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white;
+}
+
+.table-pagination-btn-active {
+  @apply bg-primary border-primary text-white hover:bg-primary-dark hover:border-primary-dark;
+}
+
+/* Status dot mejorado */
+.status-dot {
+  @apply w-2 h-2 rounded-full shrink-0;
+}
+
+.status-dot-online {
+  @apply bg-green-500;
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2);
+}
+
+.status-dot-offline {
+  @apply bg-gray-400;
+}
+
+.status-dot-busy {
+  @apply bg-amber-500;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+}
+
+/* Mobile Card para tablas */
+.table-mobile-card {
+  @apply bg-white rounded-lg border border-gray-200 p-3 space-y-2
+         transition-all duration-200 hover:border-gray-300 hover:shadow-sm;
+}
+
+.table-mobile-card-header {
+  @apply flex justify-between items-start gap-2 pb-2 border-b border-gray-100;
+}
+
+.table-mobile-card-title {
+  @apply font-semibold text-gray-900 text-sm;
+}
+
+.table-mobile-card-subtitle {
+  @apply text-[11px] text-gray-500;
+}
+
+.table-mobile-card-row {
+  @apply flex items-center gap-2 py-0.5;
+}
+
+.table-mobile-card-label {
+  @apply text-[11px] font-medium text-gray-500 min-w-[80px];
+}
+
+.table-mobile-card-value {
+  @apply text-xs text-gray-900;
+}
+
+.table-mobile-card-actions {
+  @apply flex items-center gap-2 pt-2 border-t border-gray-100 mt-2;
+}
+
+/* Angular Material Paginator overrides */
+.mat-mdc-paginator {
+  font-size: 12px;
+  display: flex !important;
+  justify-content: center !important;
+}
+
+.mat-mdc-paginator-outer-container {
+  width: 100%;
+  display: flex !important;
+  justify-content: center !important;
+}
+
+.mat-mdc-paginator-container {
+  justify-content: center !important;
+}
+
+.mat-mdc-paginator-page-size-label,
+.mat-mdc-paginator-range-label {
+  font-size: 10px;
+  color: var(--color-primary);
+  font-weight: 500;
+}
+
+.mat-mdc-paginator .mat-mdc-form-field-infix {
+  padding: 0 !important;
+  min-height: auto !important;
+}
+
+.mat-mdc-paginator .mat-mdc-select-trigger {
+  height: 28px !important;
+  min-height: 28px !important;
+  padding: 0 4px !important;
+  display: flex;
+  align-items: center;
+}
+
+.mat-mdc-paginator .mat-mdc-select-value {
+  font-size: 10px !important;
+  line-height: 1;
+}
+
+.mat-mdc-paginator .mat-mdc-select-arrow {
+  transform: scale(0.7);
+}
+
+/********************************* Input Styles - Mística ******************************************/
+.input {
+  @apply w-full text-sm text-gray-900 rounded-lg border-2 bg-white
+         border-gray-200 py-2.5 px-4 outline-none transition-all
+         placeholder:text-gray-400
+         hover:border-gray-300
+         focus:border-primary focus:ring-2 focus:ring-primary/20;
+}
+
+.input-error {
+  @apply w-full text-sm text-gray-900 rounded-lg border-2
+         bg-red-50 border-red-500 py-2.5 px-4 outline-none transition-all
+         placeholder:text-gray-400
+         focus:ring-2 focus:ring-red-200;
+}
+
+/*********************************
+  NG-SELECT
+**********************************/
+.my-select .ng-select-container {
+  @apply w-full text-sm text-slate-900 rounded-md border bg-slate-100
+         border-slate-100 outline-none transition-all;
+  padding: 0 0.75rem;
+  box-shadow: none !important;
+}
+
+/* Hover (igual que input, casi imperceptible) */
+.my-select:hover .ng-select-container {
+  @apply border-slate-200;
+}
+
+/* Focus / Open = igual que focus del input */
+.my-select.ng-select-focused .ng-select-container,
+.my-select.ng-select-opened .ng-select-container {
+  border-color: var(--color-primary) !important;
+  opacity: 0.9; /* equivale a /60 */
+  box-shadow: none !important;
+}
+
+/* Texto seleccionado */
+.my-select .ng-value-label {
+  color: #000206;
+}
+
+/* Estilos para ng-select con error */
+.ng-select-error .ng-select-container {
+  @apply border-red-500 bg-red-50;
+}
+
+.ng-select-error.ng-select-focused .ng-select-container,
+.ng-select-error.ng-select-opened .ng-select-container {
+  @apply border-red-500;
+}
+
+/* Placeholder del ng-select */
+.my-select .ng-placeholder {
+  @apply text-slate-400;
+}
+
+/* Asegurar que el dropdown tenga z-index alto */
+.ng-dropdown-panel {
+  z-index: 9999 !important;
+}
+
+/* Asegurar que los items del dropdown sean clickeables */
+.ng-dropdown-panel .ng-option {
+  cursor: pointer !important;
+  pointer-events: auto !important;
+}
+
+.ng-dropdown-panel .ng-option:hover {
+  background-color: #f3f4f6 !important;
+}
+
+
+
+/********************************* Loader Styles ******************************************/
+.loader {
+  scale: 3;
+  height: 50px;
+  width: 40px;
+}
+
+.box {
+  position: relative;
+  opacity: 0;
+  left: 10px;
+}
+
+.side-left {
+  @apply bg-primary;
+  position: absolute;
+  width: 19px;
+  height: 5px;
+  transform: skew(0deg, -25deg);
+  top: 14px;
+  left: 10px;
+}
+
+.side-right {
+  position: absolute;
+  @apply bg-primary;
+  width: 19px;
+  height: 5px;
+  transform: skew(0deg, 25deg);
+  top: 14px;
+  left: -9px;
+}
+
+.side-top {
+  position: absolute;
+  @apply bg-primary/40;
+  width: 20px;
+  height: 20px;
+  rotate: 45deg;
+  transform: skew(-20deg, -20deg);
+}
+
+.box-1 {
+  animation: from-left 4s infinite;
+}
+
+.box-2 {
+  animation: from-right 4s infinite;
+  animation-delay: 1s;
+}
+
+.box-3 {
+  animation: from-left 4s infinite;
+  animation-delay: 2s;
+}
+
+.box-4 {
+  animation: from-right 4s infinite;
+  animation-delay: 3s;
+}
+
+@keyframes from-left {
+  0% {
+    z-index: 20;
+    opacity: 0;
+    translate: -20px -6px;
+  }
+
+  20% {
+    z-index: 10;
+    opacity: 1;
+    translate: 0px 0px;
+  }
+
+  40% {
+    z-index: 9;
+    translate: 0px 4px;
+  }
+
+  60% {
+    z-index: 8;
+    translate: 0px 8px;
+  }
+
+  80% {
+    z-index: 7;
+    opacity: 1;
+    translate: 0px 12px;
+  }
+
+  100% {
+    z-index: 5;
+    translate: 0px 30px;
+    opacity: 0;
+  }
+}
+
+@keyframes from-right {
+  0% {
+    z-index: 20;
+    opacity: 0;
+    translate: 20px -6px;
+  }
+
+  20% {
+    z-index: 10;
+    opacity: 1;
+    translate: 0px 0px;
+  }
+
+  40% {
+    z-index: 9;
+    translate: 0px 4px;
+  }
+
+  60% {
+    z-index: 8;
+    translate: 0px 8px;
+  }
+
+  80% {
+    z-index: 7;
+    opacity: 1;
+    translate: 0px 12px;
+  }
+
+  100% {
+    z-index: 5;
+    translate: 0px 30px;
+    opacity: 0;
+  }
+}
+
+
+/********************************* Calendar Styles ******************************************/
+.calendario-personalizado .fc-button {
+  background-color: var(--color-primary) !important;
+  border: none !important;
+  color: white !important;
+  border-radius: 4px !important;
+  font-weight: 300 !important;
+  padding: 6px 12px !important;
+}
+/* Estado activo (seleccionado) */
+.calendario-personalizado .fc-button.fc-button-active,
+.calendario-personalizado .fc-button.fc-state-active {
+  background-color: black !important;
+  color: white !important;
+}
+
+.calendario-personalizado .fc-button:focus,
+.calendario-personalizado .fc-button:active {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+
+/* 👇 ESPACIO ENTRE BOTONES */
+.calendario-personalizado .fc-button-group .fc-button,
+.calendario-personalizado .fc-toolbar-chunk .fc-button {
+  margin: 0 1px !important;
+}
+
+
+/* Hover */
+.calendario-personalizado .fc-button:hover {
+  background-color: #000206 !important;
+}
+
+/* Botón hoy */
+.calendario-personalizado .fc-today-button {
+  background-color: var(--color-primary) !important; /* verde */
+  cursor: pointer;
+}
+
+/* Botones de navegación */
+.calendario-personalizado .fc-prev-button,
+.calendario-personalizado .fc-next-button {
+  background-color: var(--color-primary) !important; /* amarillo */
+}
+
+/* Indicador de hora actual (línea roja como Google Calendar) */
+.calendario-personalizado .fc-timegrid-now-indicator-line {
+  border-color: #0063ff !important; /* Rojo de Google Calendar */
+  border-width: 1px !important;
+}
+
+/* Flecha/círculo del indicador de hora actual */
+.calendario-personalizado .fc-timegrid-now-indicator-arrow {
+  border: none !important;          /* elimina el triángulo */
+  width: 10px;
+  height: 10px;
+  background-color: #0063ff !important;
+  border-radius: 50%;
+  margin-top: -4px;                 /* ajusta alineación con la línea */
+}
+
+/* Efecto de opacidad cuando se selecciona un evento */
+.calendario-personalizado.event-dimmed .fc-event {
+  opacity: 0.3 !important;
+  transition: opacity 0.2s ease;
+}
+
+/* Mantener el evento seleccionado con opacidad completa y destacado */
+.calendario-personalizado.event-dimmed .fc-event.event-selected {
+  opacity: 1 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+  transform: scale(1.02);
+  z-index: 999 !important;
+}
+
+/********************************* Collapse Animation ******************************************/
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+/* ngx-toastr: force above all layout layers */
+#toast-container > div {
+  z-index: 999999 !important;
+}
+.toast-container {
+  z-index: 999999 !important;
+}
+
+/********************************* Sidebar - Mística Design System ******************************************/
+.sidebar {
+  @apply h-screen flex flex-col shadow-2xl transition-all duration-300 ease-in-out;
+  background: linear-gradient(180deg, #0A1628 0%, #0D1D31 50%, #0A1628 100%);
+}
+
+.sidebar-expanded {
+  @apply w-64;
+}
+
+.sidebar-collapsed {
+  @apply w-20;
+}
+
+/* Header del sidebar */
+.sidebar-header {
+  @apply relative py-5 text-center border-b border-white/5;
+}
+
+.sidebar-brand {
+  @apply text-2xl font-bold tracking-wider;
+  background: linear-gradient(135deg, var(--movistar-blue) 0%, var(--movistar-blue-light) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.sidebar-brand-subtitle {
+  @apply text-xs text-gray-500 mt-1 font-medium;
+}
+
+.sidebar-logo-collapsed {
+  @apply w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-lg;
+  background: linear-gradient(135deg, var(--movistar-blue) 0%, var(--movistar-blue-dark) 100%);
+}
+
+/* Toggle button */
+.sidebar-toggle {
+  @apply absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full
+         flex items-center justify-center text-white shadow-lg
+         transition-all duration-200 hover:scale-110
+         focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900;
+  background: linear-gradient(135deg, var(--movistar-blue) 0%, var(--movistar-blue-dark) 100%);
+}
+
+.sidebar-toggle:hover {
+  background: linear-gradient(135deg, var(--movistar-blue-light) 0%, var(--movistar-blue) 100%);
+}
+
+/* Navigation */
+.sidebar-nav {
+  @apply flex-1 overflow-y-auto py-3 px-2 space-y-1;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.1) transparent;
+}
+
+.sidebar-nav::-webkit-scrollbar {
+  width: 4px;
+}
+
+.sidebar-nav::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.1);
+  border-radius: 2px;
+}
+
+/* Nav item */
+.sidebar-nav-item {
+  @apply relative px-3 py-2.5 mx-1 rounded-lg text-gray-400
+         transition-all duration-200 cursor-pointer flex items-center
+         hover:text-white hover:bg-white/5;
+}
+
+.sidebar-nav-item:hover {
+  transform: translateX(2px);
+}
+
+.sidebar-nav-item.active {
+  @apply text-white bg-white/10;
+}
+
+.sidebar-nav-item.active::before {
+  content: '';
+  @apply absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 rounded-r-full;
+  background: linear-gradient(180deg, var(--movistar-blue) 0%, var(--movistar-blue-light) 100%);
+}
+
+.sidebar-nav-icon {
+  @apply w-5 h-5 shrink-0;
+}
+
+.sidebar-nav-text {
+  @apply ml-3 text-sm font-medium;
+}
+
+/* Section divider */
+.sidebar-section {
+  @apply my-3 px-3;
+}
+
+.sidebar-section-title {
+  @apply text-[10px] font-semibold text-gray-600 uppercase tracking-widest flex items-center gap-2;
+}
+
+.sidebar-section-line {
+  @apply h-px flex-1;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.1) 50%, transparent 100%);
+}
+
+/* Footer */
+.sidebar-footer {
+  @apply border-t border-white/5 p-3;
+}
+
+.sidebar-user-card {
+  @apply mb-3 p-3 rounded-xl transition-all duration-200;
+  background: rgba(255,255,255,0.03);
+}
+
+.sidebar-user-card:hover {
+  background: rgba(255,255,255,0.06);
+}
+
+.sidebar-user-avatar {
+  @apply w-10 h-10 rounded-full flex items-center justify-center shrink-0 text-white font-bold;
+  background: linear-gradient(135deg, var(--movistar-blue) 0%, var(--movistar-blue-dark) 100%);
+}
+
+.sidebar-user-name {
+  @apply text-sm font-semibold text-white truncate;
+}
+
+.sidebar-user-role {
+  @apply text-xs text-gray-500 truncate;
+}
+
+.sidebar-logout-btn {
+  @apply w-full px-4 py-2.5 rounded-lg transition-all duration-200
+         flex items-center justify-center gap-2 cursor-pointer
+         focus:outline-none focus:ring-2 focus:ring-red-500/50;
+  background: rgba(239, 68, 68, 0.1);
+  color: #F87171;
+}
+
+.sidebar-logout-btn:hover {
+  background: rgba(239, 68, 68, 0.15);
+  color: #FCA5A5;
+}
+
+/********************************* Driver.js Tour Styles ******************************************/
+.driver-popover.movistar-tour-popover {
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15), 0 4px 12px rgba(0, 0, 0, 0.1);
+  max-width: 360px;
+}
+
+.driver-popover.movistar-tour-popover .driver-popover-title {
+  font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--movistar-blue);
+  margin-bottom: 8px;
+}
+
+.driver-popover.movistar-tour-popover .driver-popover-description {
+  font-size: 0.9rem;
+  color: #475569;
+  line-height: 1.5;
+}
+
+.driver-popover.movistar-tour-popover .driver-popover-progress-text {
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+.driver-popover.movistar-tour-popover .driver-popover-navigation-btns {
+  gap: 8px;
+}
+
+.driver-popover.movistar-tour-popover .driver-popover-prev-btn {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.driver-popover.movistar-tour-popover .driver-popover-prev-btn:hover {
+  background: #e2e8f0;
+}
+
+.driver-popover.movistar-tour-popover .driver-popover-next-btn,
+.driver-popover.movistar-tour-popover .driver-popover-done-btn {
+  background: linear-gradient(135deg, var(--movistar-blue) 0%, var(--movistar-blue-dark) 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 20px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(0, 158, 247, 0.3);
+}
+
+.driver-popover.movistar-tour-popover .driver-popover-next-btn:hover,
+.driver-popover.movistar-tour-popover .driver-popover-done-btn:hover {
+  background: linear-gradient(135deg, var(--movistar-blue-dark) 0%, #005c91 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 158, 247, 0.4);
+}
+
+.driver-popover.movistar-tour-popover .driver-popover-close-btn {
+  color: #94a3b8;
+  transition: color 0.2s;
+}
+
+.driver-popover.movistar-tour-popover .driver-popover-close-btn:hover {
+  color: #475569;
+}
+
+/* Arrow styling */
+.driver-popover.movistar-tour-popover .driver-popover-arrow-side-left,
+.driver-popover.movistar-tour-popover .driver-popover-arrow-side-right,
+.driver-popover.movistar-tour-popover .driver-popover-arrow-side-top,
+.driver-popover.movistar-tour-popover .driver-popover-arrow-side-bottom {
+  border-color: transparent;
+}
+
+.driver-popover.movistar-tour-popover .driver-popover-arrow {
+  background: white;
+}

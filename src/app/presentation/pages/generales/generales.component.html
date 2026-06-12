@@ -1,0 +1,378 @@
+<div class="min-h-screen bg-gray-50">
+  <div class="max-w-7xl mx-auto">
+
+    <!-- Sticky Header -->
+    <div class="sticky top-0 z-20 bg-gray-50 pb-3 pt-6 px-4 md:px-6">
+      <div class="mb-4 md:mb-6">
+        <div class="flex items-start md:items-center justify-between gap-3 flex-col md:flex-row">
+          <div class="flex-1 min-w-0">
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-900">Configuración General</h1>
+            <p class="mt-1 text-xs md:text-sm text-gray-600">Gestiona tipos de línea, métodos de entrega, ciclos, planes, estados y más</p>
+          </div>
+          @if (!permissions.isReadOnly()) {
+            <button
+              (click)="openModal()"
+              class="hidden md:inline-flex items-center gap-2 px-4 py-2 button shadow-sm whitespace-nowrap shrink-0"
+            >
+              <lucide-icon [img]="Plus" [size]="20"></lucide-icon>
+              <span class="hidden lg:inline">{{ getNewButtonText() }}</span>
+              <span class="lg:hidden">Nuevo</span>
+            </button>
+          }
+        </div>
+      </div>
+
+      <!-- Mobile Tab Selector -->
+      <div class="md:hidden mb-4">
+        <ng-select
+          [items]="tabOptions"
+          bindLabel="label"
+          bindValue="value"
+          [ngModel]="activeTab()"
+          (ngModelChange)="setActiveTab($event)"
+          [clearable]="false"
+          [searchable]="false"
+          placeholder="Seleccionar categoría"
+          class="my-select w-full"
+        ></ng-select>
+      </div>
+
+      <!-- Desktop Tabs -->
+      <div class="hidden md:flex flex-wrap gap-1.5 mb-4 pb-3 border-b border-gray-200">
+        @for (tab of tabOptions; track tab.value) {
+          <button
+            (click)="setActiveTab(tab.value)"
+            [ngClass]="activeTab() === tab.value ? 'bg-primary text-white shadow-sm' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'"
+            class="px-3.5 py-1.5 rounded-full text-sm font-medium transition-colors whitespace-nowrap cursor-pointer"
+          >
+            {{ tab.label }}
+          </button>
+        }
+      </div>
+
+      <!-- Stats -->
+      <div class="grid grid-cols-3 gap-2 md:gap-3 mb-3 md:mb-4">
+        <div class="bg-white rounded-lg border border-gray-200 p-2.5 md:px-4 md:py-3">
+          <p class="text-[10px] md:text-xs text-gray-600 font-medium text-center md:text-left">Total</p>
+          <p class="text-base md:text-lg font-bold text-gray-900 text-center md:text-left">{{ getTotal() }}</p>
+        </div>
+        <div class="bg-white rounded-lg border border-gray-200 p-2.5 md:px-4 md:py-3">
+          <p class="text-[10px] md:text-xs text-gray-600 font-medium text-center md:text-left">Activos</p>
+          <p class="text-base md:text-lg font-bold text-green-600 text-center md:text-left">{{ getActivos() }}</p>
+        </div>
+        <div class="bg-white rounded-lg border border-gray-200 p-2.5 md:px-4 md:py-3">
+          <p class="text-[10px] md:text-xs text-gray-600 font-medium text-center md:text-left">Inactivos</p>
+          <p class="text-base md:text-lg font-bold text-gray-500 text-center md:text-left">{{ getInactivos() }}</p>
+        </div>
+      </div>
+
+      <!-- Search -->
+      <div class="mb-3 md:mb-4">
+        <div class="relative">
+          <lucide-icon [img]="Search" [size]="18" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></lucide-icon>
+          <input
+            type="text"
+            [value]="searchTerm()"
+            (input)="searchTerm.set($any($event.target).value)"
+            placeholder="Buscar..."
+            class="w-full pl-10 pr-4 py-2 md:py-2.5 border-2 border-gray-200 rounded-lg text-sm placeholder:text-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="px-4 md:px-6 pb-20 md:pb-6">
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 divide-y divide-gray-200">
+
+        <!-- Toggle helper template reused per tab -->
+        @if (activeTab() === 'tipos-linea') {
+          @if (getFilteredTiposLinea().length === 0) {
+            <div class="text-center py-12 text-gray-500">{{ searchTerm() ? 'Sin resultados' : 'No hay tipos de línea registrados' }}</div>
+          }
+          @for (item of getFilteredTiposLinea(); track item.tipoLineaId) {
+            <div class="flex items-center justify-between p-4 hover:bg-gray-50 transition-colors">
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium text-gray-900">{{ item.nombre }}</p>
+                <p class="text-xs text-gray-400 mt-0.5">ID: {{ item.tipoLineaId }}</p>
+              </div>
+              <button (click)="!permissions.isReadOnly() && toggleTipoLinea(item)"
+                class="ml-3 relative inline-flex h-6 w-11 shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none"
+                [class.bg-primary]="item.activo" [class.bg-gray-400]="!item.activo"
+                [class.cursor-pointer]="!permissions.isReadOnly()" [class.cursor-not-allowed]="permissions.isReadOnly()"
+                [disabled]="permissions.isReadOnly()" role="switch" [attr.aria-checked]="item.activo">
+                <span class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow transition duration-200 ease-in-out"
+                  [class.translate-x-5]="item.activo" [class.translate-x-0]="!item.activo"></span>
+              </button>
+            </div>
+          }
+        }
+
+        @if (activeTab() === 'metodos-entrega') {
+          @if (getFilteredMetodosEntrega().length === 0) {
+            <div class="text-center py-12 text-gray-500">{{ searchTerm() ? 'Sin resultados' : 'No hay métodos de entrega registrados' }}</div>
+          }
+          @for (item of getFilteredMetodosEntrega(); track item.metodoEntregaId) {
+            <div class="flex items-center justify-between p-4 hover:bg-gray-50 transition-colors">
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium text-gray-900">{{ item.nombre }}</p>
+                <p class="text-xs text-gray-400 mt-0.5">ID: {{ item.metodoEntregaId }}</p>
+              </div>
+              <button (click)="!permissions.isReadOnly() && toggleMetodoEntrega(item)"
+                class="ml-3 relative inline-flex h-6 w-11 shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none"
+                [class.bg-primary]="item.activo" [class.bg-gray-400]="!item.activo"
+                [class.cursor-pointer]="!permissions.isReadOnly()" [class.cursor-not-allowed]="permissions.isReadOnly()"
+                [disabled]="permissions.isReadOnly()" role="switch" [attr.aria-checked]="item.activo">
+                <span class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow transition duration-200 ease-in-out"
+                  [class.translate-x-5]="item.activo" [class.translate-x-0]="!item.activo"></span>
+              </button>
+            </div>
+          }
+        }
+
+        @if (activeTab() === 'ciclos-facturacion') {
+          @if (getFilteredCiclos().length === 0) {
+            <div class="text-center py-12 text-gray-500">{{ searchTerm() ? 'Sin resultados' : 'No hay ciclos de facturación registrados' }}</div>
+          }
+          @for (item of getFilteredCiclos(); track item.cicloFacturacionId) {
+            <div class="flex items-center justify-between p-4 hover:bg-gray-50 transition-colors">
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium text-gray-900">{{ item.codigo }}</p>
+                <p class="text-xs text-gray-400 mt-0.5">ID: {{ item.cicloFacturacionId }}</p>
+              </div>
+              <button (click)="!permissions.isReadOnly() && toggleCicloFacturacion(item)"
+                class="ml-3 relative inline-flex h-6 w-11 shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none"
+                [class.bg-primary]="item.activo" [class.bg-gray-400]="!item.activo"
+                [class.cursor-pointer]="!permissions.isReadOnly()" [class.cursor-not-allowed]="permissions.isReadOnly()"
+                [disabled]="permissions.isReadOnly()" role="switch" [attr.aria-checked]="item.activo">
+                <span class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow transition duration-200 ease-in-out"
+                  [class.translate-x-5]="item.activo" [class.translate-x-0]="!item.activo"></span>
+              </button>
+            </div>
+          }
+        }
+
+        @if (activeTab() === 'planes') {
+          @if (getFilteredPlanes().length === 0) {
+            <div class="text-center py-12 text-gray-500">{{ searchTerm() ? 'Sin resultados' : 'No hay planes registrados' }}</div>
+          }
+          @for (item of getFilteredPlanes(); track item.planId) {
+            <div class="flex items-center justify-between p-4 hover:bg-gray-50 transition-colors">
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium text-gray-900">{{ item.nombre }}</p>
+                <p class="text-xs text-gray-400 mt-0.5">ID: {{ item.planId }}</p>
+              </div>
+              <button (click)="!permissions.isReadOnly() && togglePlan(item)"
+                class="ml-3 relative inline-flex h-6 w-11 shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none"
+                [class.bg-primary]="item.activo" [class.bg-gray-400]="!item.activo"
+                [class.cursor-pointer]="!permissions.isReadOnly()" [class.cursor-not-allowed]="permissions.isReadOnly()"
+                [disabled]="permissions.isReadOnly()" role="switch" [attr.aria-checked]="item.activo">
+                <span class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow transition duration-200 ease-in-out"
+                  [class.translate-x-5]="item.activo" [class.translate-x-0]="!item.activo"></span>
+              </button>
+            </div>
+          }
+        }
+
+        @if (activeTab() === 'planes-original') {
+          @if (getFilteredPlanesOriginales().length === 0) {
+            <div class="text-center py-12 text-gray-500">{{ searchTerm() ? 'Sin resultados' : 'No hay planes originales registrados' }}</div>
+          }
+          @for (item of getFilteredPlanesOriginales(); track item.planOriginalId) {
+            <div class="flex items-center justify-between p-4 hover:bg-gray-50 transition-colors">
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium text-gray-900">{{ item.nombre }}</p>
+                <p class="text-xs text-gray-400 mt-0.5">ID: {{ item.planOriginalId }}</p>
+              </div>
+              <button (click)="!permissions.isReadOnly() && togglePlanOriginal(item)"
+                class="ml-3 relative inline-flex h-6 w-11 shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none"
+                [class.bg-primary]="item.activo" [class.bg-gray-400]="!item.activo"
+                [class.cursor-pointer]="!permissions.isReadOnly()" [class.cursor-not-allowed]="permissions.isReadOnly()"
+                [disabled]="permissions.isReadOnly()" role="switch" [attr.aria-checked]="item.activo">
+                <span class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow transition duration-200 ease-in-out"
+                  [class.translate-x-5]="item.activo" [class.translate-x-0]="!item.activo"></span>
+              </button>
+            </div>
+          }
+        }
+
+        @if (activeTab() === 'planes-dscto') {
+          @if (getFilteredPlanesDscto().length === 0) {
+            <div class="text-center py-12 text-gray-500">{{ searchTerm() ? 'Sin resultados' : 'No hay planes de descuento registrados' }}</div>
+          }
+          @for (item of getFilteredPlanesDscto(); track item.planDsctoId) {
+            <div class="flex items-center justify-between p-4 hover:bg-gray-50 transition-colors">
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium text-gray-900">{{ item.nombre }}</p>
+                <p class="text-xs text-gray-400 mt-0.5">ID: {{ item.planDsctoId }} &bull; ${{ item.monto | number:'1.2-2' }}</p>
+              </div>
+              <button (click)="!permissions.isReadOnly() && togglePlanDscto(item)"
+                class="ml-3 relative inline-flex h-6 w-11 shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none"
+                [class.bg-primary]="item.activo" [class.bg-gray-400]="!item.activo"
+                [class.cursor-pointer]="!permissions.isReadOnly()" [class.cursor-not-allowed]="permissions.isReadOnly()"
+                [disabled]="permissions.isReadOnly()" role="switch" [attr.aria-checked]="item.activo">
+                <span class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow transition duration-200 ease-in-out"
+                  [class.translate-x-5]="item.activo" [class.translate-x-0]="!item.activo"></span>
+              </button>
+            </div>
+          }
+        }
+
+        @if (activeTab() === 'estados-mexico') {
+          @if (getFilteredEstados().length === 0) {
+            <div class="text-center py-12 text-gray-500">{{ searchTerm() ? 'Sin resultados' : 'No hay estados registrados' }}</div>
+          }
+          @for (item of getFilteredEstados(); track item.estadoId) {
+            <div class="flex items-center justify-between p-4 hover:bg-gray-50 transition-colors">
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium text-gray-900">{{ item.nombre }}</p>
+                <p class="text-xs text-gray-400 mt-0.5">ID: {{ item.estadoId }}</p>
+              </div>
+              <button (click)="!permissions.isReadOnly() && toggleEstado(item)"
+                class="ml-3 relative inline-flex h-6 w-11 shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none"
+                [class.bg-primary]="item.activo" [class.bg-gray-400]="!item.activo"
+                [class.cursor-pointer]="!permissions.isReadOnly()" [class.cursor-not-allowed]="permissions.isReadOnly()"
+                [disabled]="permissions.isReadOnly()" role="switch" [attr.aria-checked]="item.activo">
+                <span class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow transition duration-200 ease-in-out"
+                  [class.translate-x-5]="item.activo" [class.translate-x-0]="!item.activo"></span>
+              </button>
+            </div>
+          }
+        }
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile FAB -->
+  @if (!permissions.isReadOnly()) {
+    <button
+      (click)="openModal()"
+      class="md:hidden fixed bottom-6 right-4 z-30 h-14 w-14 rounded-full button shadow-lg flex items-center justify-center hover:scale-105 transition-transform"
+      aria-label="Agregar nuevo"
+    >
+      <lucide-icon [img]="Plus" [size]="24"></lucide-icon>
+    </button>
+  }
+
+  <!-- Modal -->
+  <app-modal
+    [title]="getModalTitle()"
+    [isOpen]="showModal()"
+    [size]="'md'"
+    (closeModal)="closeModal()"
+  >
+    <form [formGroup]="itemForm" (ngSubmit)="onSubmit()" class="space-y-4">
+
+      <!-- Campo Código (solo CicloFacturacion) -->
+      @if (isCicloTab()) {
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Código <span class="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            formControlName="codigo"
+            placeholder="Ej: CICLO 17"
+            class="block w-full input sm:text-sm px-4 py-2.5 border placeholder:text-slate-400"
+            [ngClass]="isFieldInvalid('codigo') ? 'input-error' : 'input'"
+          />
+          @if (isFieldInvalid('codigo')) {
+            <p class="mt-1 text-sm text-red-600">El código es obligatorio</p>
+          }
+        </div>
+      }
+
+      <!-- Campo Nombre (todos menos CicloFacturacion) -->
+      @if (!isCicloTab()) {
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Nombre <span class="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            formControlName="nombre"
+            placeholder="Ej: Plan 399"
+            class="block w-full input sm:text-sm px-4 py-2.5 border placeholder:text-slate-400"
+            [ngClass]="isFieldInvalid('nombre') ? 'input-error' : 'input'"
+          />
+          @if (isFieldInvalid('nombre')) {
+            <p class="mt-1 text-sm text-red-600">El nombre es obligatorio</p>
+          }
+        </div>
+      }
+
+      <!-- Campo Monto (solo PlanDscto) -->
+      @if (isDsctoTab()) {
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Monto <span class="text-red-500">*</span>
+          </label>
+          <input
+            type="number"
+            formControlName="monto"
+            placeholder="Ej: 150.00"
+            step="0.01"
+            min="0"
+            class="block w-full input sm:text-sm px-4 py-2.5 border placeholder:text-slate-400"
+            [ngClass]="isFieldInvalid('monto') ? 'input-error' : 'input'"
+          />
+          @if (isFieldInvalid('monto')) {
+            <p class="mt-1 text-sm text-red-600">El monto es obligatorio y debe ser mayor a 0</p>
+          }
+        </div>
+      }
+
+      <!-- Activo Toggle -->
+      <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+        <div>
+          <label class="block text-sm font-medium text-gray-900">Estado inicial</label>
+          <p class="text-xs text-gray-500 mt-0.5">{{ itemForm.get('activo')?.value ? 'Activo' : 'Inactivo' }}</p>
+        </div>
+        <button
+          type="button"
+          (click)="itemForm.patchValue({ activo: !itemForm.get('activo')?.value })"
+          class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+          [class.bg-primary]="itemForm.get('activo')?.value"
+          [class.bg-gray-200]="!itemForm.get('activo')?.value"
+          role="switch"
+          [attr.aria-checked]="itemForm.get('activo')?.value"
+        >
+          <span
+            class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
+            [class.translate-x-5]="itemForm.get('activo')?.value"
+            [class.translate-x-0]="!itemForm.get('activo')?.value"
+          ></span>
+        </button>
+      </div>
+
+      <!-- Actions -->
+      <div modal-footer class="flex gap-3 justify-end">
+        <button
+          type="button"
+          (click)="closeModal()"
+          class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+        >
+          Cancelar
+        </button>
+        <button
+          type="submit"
+          [disabled]="itemForm.invalid || isLoading()"
+          class="px-4 py-2 button disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          @if (isLoading()) {
+            <span class="flex items-center gap-2">
+              <svg class="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Guardando...
+            </span>
+          } @else {
+            Guardar
+          }
+        </button>
+      </div>
+    </form>
+  </app-modal>
+</div>

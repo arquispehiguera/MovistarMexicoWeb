@@ -1,0 +1,587 @@
+<div class="p-4 md:p-6">
+  <!-- Header de página -->
+  <div class="mb-6">
+    <h1 class="text-title text-gray-900 mb-1">Ventas Registradas</h1>
+    <p class="text-body-small text-gray-500">Historial completo de todas las ventas registradas en el sistema</p>
+  </div>
+
+  <div class="table-container">
+    <!-- Toolbar de búsqueda -->
+    <div class="table-toolbar">
+      <div class="table-search">
+        <lucide-icon [img]="SearchIcon" class="table-search-icon" [strokeWidth]="2"></lucide-icon>
+        <input type="text"
+          [value]="searchTerm()"
+          (input)="applyFilter($any($event.target).value)"
+          placeholder="Buscar por nombre, número..."
+          class="table-search-input">
+        @if (searchTerm()) {
+        <button (click)="clearSearch()"
+          class="absolute right-5 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 rounded-full transition-colors"
+          title="Limpiar búsqueda">
+          <lucide-icon [img]="XIcon" class="size-4 text-gray-400" [strokeWidth]="2"></lucide-icon>
+        </button>
+        }
+      </div>
+    </div>
+
+    <!-- Vista de TABLA para DESKTOP -->
+    <div class="hidden md:block overflow-x-auto relative">
+      @if (isLoading()) {
+      <div class="absolute inset-0 z-10 bg-white/70 flex items-center justify-center min-h-[200px] rounded">
+        <div class="flex flex-col items-center gap-2">
+          <app-spinner></app-spinner>
+          <span class="text-xs text-gray-500">Cargando ventas...</span>
+        </div>
+      </div>
+      }
+      <table mat-table [dataSource]="dataSource" matSort class="w-full">
+
+        <!-- ID Column -->
+        <ng-container matColumnDef="ventaID">
+          <th mat-header-cell *matHeaderCellDef>ID</th>
+          <td mat-cell *matCellDef="let venta">
+            <span class="font-mono text-gray-500">#{{ venta.ventaID }}</span>
+          </td>
+        </ng-container>
+
+        <!-- Producto Column -->
+        <ng-container matColumnDef="producto">
+          <th mat-header-cell *matHeaderCellDef>Producto</th>
+          <td mat-cell *matCellDef="let venta">
+            <span class="badge" [ngClass]="getProductoBadgeClass(venta.producto)">
+              {{ venta.producto }}
+            </span>
+          </td>
+        </ng-container>
+
+        <!-- Cliente Column -->
+        <ng-container matColumnDef="cliente">
+          <th mat-header-cell *matHeaderCellDef>Cliente</th>
+          <td mat-cell *matCellDef="let venta">
+            <div class="flex flex-col">
+              <span class="font-medium text-gray-900">{{ venta.nombres }} {{ venta.apellidoPaterno }}</span>
+              <span class="text-xs text-gray-500">{{ venta.correoElectronico }}</span>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Número a Portar Column -->
+        <ng-container matColumnDef="numeroPortar">
+          <th mat-header-cell *matHeaderCellDef>Nro a Portar</th>
+          <td mat-cell *matCellDef="let venta">
+            <span class="text-gray-700 font-mono">{{ venta.numeroPortar || '-' }}</span>
+          </td>
+        </ng-container>
+
+        <!-- Tipo Línea Column -->
+        <ng-container matColumnDef="tipoLinea">
+          <th mat-header-cell *matHeaderCellDef>Tipo Línea</th>
+          <td mat-cell *matCellDef="let venta">
+            <span class="text-gray-600">{{ venta.tipoLinea || '-' }}</span>
+          </td>
+        </ng-container>
+
+        <!-- Plan Column -->
+        <ng-container matColumnDef="plan">
+          <th mat-header-cell *matHeaderCellDef>Plan</th>
+          <td mat-cell *matCellDef="let venta">
+            <span class="text-gray-600">{{ venta.plan || '-' }}</span>
+          </td>
+        </ng-container>
+
+        <!-- Fecha Column -->
+        <ng-container matColumnDef="fechaRegistro">
+          <th mat-header-cell *matHeaderCellDef>Fecha Registro</th>
+          <td mat-cell *matCellDef="let venta">
+            <span class="text-gray-500 text-xs">{{ formatDate(venta.fechaRegistro) }}</span>
+          </td>
+        </ng-container>
+
+        <!-- Acciones Column -->
+        <ng-container matColumnDef="acciones">
+          <th mat-header-cell *matHeaderCellDef class="text-center">Acciones</th>
+          <td mat-cell *matCellDef="let venta">
+            <div class="table-actions-cell justify-center">
+              <button (click)="openDetailModal(venta)"
+                class="table-action-btn table-action-btn-primary"
+                matTooltip="Ver detalles">
+                <lucide-icon [img]="View" class="w-4 h-4" [strokeWidth]="1.5"></lucide-icon>
+                <span class="hidden lg:inline">Ver</span>
+              </button>
+              @if (canDelete()) {
+              <button (click)="openDeleteModal(venta)"
+                class="table-action-btn table-action-btn-danger"
+                matTooltip="Eliminar venta">
+                <lucide-icon [img]="Trash2Icon" class="w-4 h-4" [strokeWidth]="1.5"></lucide-icon>
+                <span class="hidden lg:inline">Eliminar</span>
+              </button>
+              }
+            </div>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+        <!-- Empty state -->
+        <tr class="mat-row" *matNoDataRow>
+          <td class="mat-cell" [attr.colspan]="displayedColumns.length">
+            <div class="table-empty">
+              <lucide-icon [img]="Database" class="table-empty-icon" [strokeWidth]="1"></lucide-icon>
+              @if (queryParams().searchTerm) {
+              <p class="table-empty-title">No se encontraron resultados</p>
+              <p class="table-empty-description">Intenta con otra búsqueda</p>
+              } @else {
+              <p class="table-empty-title">No hay ventas registradas</p>
+              <p class="table-empty-description">Comienza registrando tu primera venta</p>
+              }
+            </div>
+          </td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- Vista de CARDS para MÓVILES -->
+    <div class="md:hidden p-4 space-y-3 relative">
+      @if (isLoading()) {
+      <div class="absolute inset-0 z-10 bg-white/70 flex items-center justify-center min-h-[200px] rounded">
+        <div class="flex flex-col items-center gap-2">
+          <app-spinner></app-spinner>
+          <span class="text-xs text-gray-500">Cargando ventas...</span>
+        </div>
+      </div>
+      }
+      @for (venta of dataSource.data; track venta.ventaID) {
+      <div class="table-mobile-card">
+        <div class="table-mobile-card-header">
+          <div class="flex-1 min-w-0">
+            <h3 class="table-mobile-card-title">{{ venta.nombres }} {{ venta.apellidoPaterno }}</h3>
+            <p class="table-mobile-card-subtitle">#{{ venta.ventaID }}</p>
+          </div>
+          <span class="badge" [ngClass]="getProductoBadgeClass(venta.producto)">
+            {{ venta.producto }}
+          </span>
+        </div>
+
+        <div class="space-y-1">
+          <div class="table-mobile-card-row">
+            <span class="table-mobile-card-label">Nro a Portar</span>
+            <span class="table-mobile-card-value font-mono">{{ venta.numeroPortar || '-' }}</span>
+          </div>
+
+          <div class="table-mobile-card-row">
+            <span class="table-mobile-card-label">Tipo Línea</span>
+            <span class="table-mobile-card-value">{{ venta.tipoLinea || '-' }}</span>
+          </div>
+
+          <div class="table-mobile-card-row">
+            <span class="table-mobile-card-label">Plan</span>
+            <span class="table-mobile-card-value">{{ venta.plan || '-' }}</span>
+          </div>
+
+          <div class="table-mobile-card-row">
+            <span class="table-mobile-card-label">Fecha</span>
+            <span class="table-mobile-card-value text-xs">{{ formatDate(venta.fechaRegistro) }}</span>
+          </div>
+        </div>
+
+        <div class="table-mobile-card-actions">
+          <button (click)="openDetailModal(venta)"
+            class="table-action-btn table-action-btn-primary flex-1 justify-center">
+            <lucide-icon [img]="View" class="w-4 h-4" [strokeWidth]="1.5"></lucide-icon>
+            Ver Detalles
+          </button>
+          @if (canDelete()) {
+          <button (click)="openDeleteModal(venta)"
+            class="table-action-btn table-action-btn-danger justify-center">
+            <lucide-icon [img]="Trash2Icon" class="w-4 h-4" [strokeWidth]="1.5"></lucide-icon>
+          </button>
+          }
+        </div>
+      </div>
+      }
+
+      @if (dataSource.data.length === 0) {
+      <div class="table-empty py-12">
+        <lucide-icon [img]="Database" class="table-empty-icon" [strokeWidth]="1"></lucide-icon>
+        @if (queryParams().searchTerm) {
+        <p class="table-empty-title">No se encontraron resultados</p>
+        <p class="table-empty-description">Intenta con otra búsqueda</p>
+        } @else {
+        <p class="table-empty-title">No hay ventas registradas</p>
+        <p class="table-empty-description">Comienza registrando tu primera venta</p>
+        }
+      </div>
+      }
+    </div>
+
+    <!-- Paginación -->
+    @if (totalCount() > 0) {
+    <div class="table-pagination">
+      <div class="flex flex-col sm:flex-row items-center gap-3">
+        <span class="table-pagination-info">
+          Mostrando <strong>{{ (queryParams().pageNumber - 1) * queryParams().pageSize + 1 }}</strong> -
+          <strong>{{ Math.min(queryParams().pageNumber * queryParams().pageSize, totalCount()) }}</strong> de
+          <strong>{{ totalCount() }}</strong>
+        </span>
+
+        <div class="flex items-center gap-2">
+          <label class="text-xs text-gray-500">Mostrar:</label>
+          <ng-select class="my-select w-20"
+            [items]="pageSizeOptions"
+            bindLabel="label"
+            bindValue="value"
+            [ngModel]="queryParams().pageSize"
+            (ngModelChange)="changePageSize($event)"
+            [clearable]="false"
+            [searchable]="false"
+            [appendTo]="'body'">
+          </ng-select>
+        </div>
+      </div>
+
+      @if (totalPages() > 1) {
+      <div class="table-pagination-controls">
+        <button (click)="previousPage()"
+          [disabled]="queryParams().pageNumber === 1"
+          class="table-pagination-btn">
+          <lucide-icon [img]="ChevronLeftIcon" class="w-4 h-4" [strokeWidth]="2"></lucide-icon>
+        </button>
+
+        @for (page of getPageNumbers(); track $index) {
+          @if (page === '...') {
+            <span class="px-2 text-gray-400">...</span>
+          } @else {
+            <button (click)="goToPage(+page)"
+              class="table-pagination-btn"
+              [ngClass]="{'table-pagination-btn-active': queryParams().pageNumber === page}">
+              {{ page }}
+            </button>
+          }
+        }
+
+        <button (click)="nextPage()"
+          [disabled]="queryParams().pageNumber === totalPages()"
+          class="table-pagination-btn">
+          <lucide-icon [img]="ChevronRightIcon" class="w-4 h-4" [strokeWidth]="2"></lucide-icon>
+        </button>
+      </div>
+      }
+    </div>
+    }
+  </div>
+
+  <!-- Modal de Confirmación de Eliminación -->
+  @if (ventaToDelete()) {
+  <app-modal title="Eliminar Venta" [isOpen]="showDeleteModal()" [size]="'sm'" (closeModal)="cancelDelete()">
+    <div class="p-4 text-center">
+      <div class="flex justify-center mb-3">
+        <div class="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
+          <lucide-icon [img]="Trash2Icon" class="w-6 h-6 text-red-600" [strokeWidth]="1.5"></lucide-icon>
+        </div>
+      </div>
+      <p class="text-sm text-gray-700 mb-1">¿Estás seguro de eliminar la venta</p>
+      <p class="text-sm font-semibold text-gray-900 mb-1">#{{ ventaToDelete()!.ventaID }}</p>
+      <p class="text-sm text-gray-700 mb-4">de <span class="font-medium">{{ ventaToDelete()!.nombres }} {{ ventaToDelete()!.apellidoPaterno }}</span>?</p>
+      <p class="text-xs text-red-600">Esta acción no se puede deshacer.</p>
+    </div>
+    <div modal-footer class="flex justify-end gap-2">
+      <button (click)="cancelDelete()" [disabled]="isDeleting()" class="button-secondary px-4 py-2 text-sm">
+        Cancelar
+      </button>
+      <button (click)="confirmDelete()" [disabled]="isDeleting()"
+        class="button-danger px-4 py-2 text-sm flex items-center gap-2">
+        @if (isDeleting()) {
+          <lucide-icon [img]="Trash2Icon" class="w-4 h-4 animate-spin" [strokeWidth]="1.5"></lucide-icon>
+          Eliminando...
+        } @else {
+          <lucide-icon [img]="Trash2Icon" class="w-4 h-4" [strokeWidth]="1.5"></lucide-icon>
+          Eliminar
+        }
+      </button>
+    </div>
+  </app-modal>
+  }
+
+  <!-- Modal de Detalles Completos -->
+  @if (selectedVenta()) {
+  <app-modal [title]="'Detalles del Registro #' + selectedVenta()!.ventaID" [isOpen]="showDetailModal()"
+    [size]="'xxl'" (closeModal)="closeDetailModal()">
+
+    <div class="p-1">
+      <!-- Badges de información del registro -->
+      <div class="flex flex-wrap justify-center gap-2 mb-4">
+        <span *ngIf="usuarioVenta(); else usuarioDesconocido"
+          class="badge badge-info px-3 py-1.5 text-xs">
+          <lucide-icon [img]="View" class="w-3.5 h-3.5" [strokeWidth]="1.5"></lucide-icon>
+          Registrado por: {{ usuarioVenta()?.nombres }} {{ usuarioVenta()?.apellidoPaterno }}
+        </span>
+        <ng-template #usuarioDesconocido>
+          <span class="badge badge-secondary px-3 py-1.5 text-xs">
+            Registrado por: Desconocido
+          </span>
+        </ng-template>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
+
+        <!-- Información del Cliente -->
+        <div class="card p-0">
+          <div class="card-header flex items-center gap-2 py-2 px-3">
+            <span class="w-1 h-4 bg-blue-500 rounded-full"></span>
+            <h3 class="card-title text-sm">Información del Cliente</h3>
+          </div>
+          <div class="card-body space-y-1 py-2 px-3">
+            <div class="grid grid-cols-[auto_1fr] gap-x-2 gap-y-0.5">
+              <span class="text-xs text-gray-500">Nombre:</span>
+              <span class="text-xs font-medium text-gray-900 min-w-0 break-words">
+                {{ selectedVenta()!.nombres || '-' }} {{ selectedVenta()!.apellidoPaterno || '' }} {{ selectedVenta()!.apellidoMaterno || '' }}
+              </span>
+            </div>
+            <div class="grid grid-cols-[auto_1fr] gap-x-2 gap-y-0.5">
+              <span class="text-xs text-gray-500">Fecha Nac.:</span>
+              <span class="text-xs text-gray-900 min-w-0 break-words">{{ selectedVenta()!.fechaNacimiento || '-' }}</span>
+            </div>
+            <div class="grid grid-cols-[auto_1fr] gap-x-2 gap-y-0.5">
+              <span class="text-xs text-gray-500">Email:</span>
+              <span class="text-xs text-primary break-all min-w-0">{{ selectedVenta()!.correoElectronico || '-' }}</span>
+            </div>
+            <div class="grid grid-cols-[auto_1fr] gap-x-2 gap-y-0.5">
+              <span class="text-xs text-gray-500">INE:</span>
+              <span class="text-xs font-mono text-gray-900 min-w-0 break-all">{{ selectedVenta()!.ine || '-' }}</span>
+            </div>
+            <div class="grid grid-cols-[auto_1fr] gap-x-2 gap-y-0.5">
+              <span class="text-xs text-gray-500">CURP:</span>
+              <span class="text-xs font-mono text-gray-900 min-w-0 break-all">{{ selectedVenta()!.curp || '-' }}</span>
+            </div>
+            <div class="grid grid-cols-[auto_1fr] gap-x-2 gap-y-0.5">
+              <span class="text-xs text-gray-500">RFC:</span>
+              <span class="text-xs font-mono text-gray-900 min-w-0 break-all">{{ selectedVenta()!.rfc || '-' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Contacto -->
+        <div class="card p-0">
+          <div class="card-header flex items-center gap-2 py-2 px-3">
+            <span class="w-1 h-4 bg-green-500 rounded-full"></span>
+            <h3 class="card-title text-sm">Contacto</h3>
+          </div>
+          <div class="card-body space-y-1 py-2 px-3">
+            <div class="grid grid-cols-[auto_1fr] gap-x-2 gap-y-0.5">
+              <span class="text-xs text-gray-500">Nro a Portar:</span>
+              <span class="text-xs font-mono text-gray-900 min-w-0 break-all">{{ selectedVenta()!.numeroPortar || '-' }}</span>
+            </div>
+            <div class="grid grid-cols-[auto_1fr] gap-x-2 gap-y-0.5">
+              <span class="text-xs text-gray-500">DN:</span>
+              <span class="text-xs font-mono text-gray-900 min-w-0 break-all">{{ selectedVenta()!.dn || '-' }}</span>
+            </div>
+            <div class="grid grid-cols-[auto_1fr] gap-x-2 gap-y-0.5">
+              <span class="text-xs text-gray-500">Número:</span>
+              <span class="text-xs font-mono text-gray-900 min-w-0 break-all">{{ selectedVenta()!.numero || '-' }}</span>
+            </div>
+            <div class="grid grid-cols-[auto_1fr] gap-x-2 gap-y-0.5">
+              <span class="text-xs text-gray-500">Contacto 1:</span>
+              <span class="text-xs text-gray-900 min-w-0 break-words">{{ selectedVenta()!.telfContacto1 || '-' }}</span>
+            </div>
+            <div class="grid grid-cols-[auto_1fr] gap-x-2 gap-y-0.5">
+              <span class="text-xs text-gray-500">Contacto 2:</span>
+              <span class="text-xs text-gray-900 min-w-0 break-words">{{ selectedVenta()!.telfContacto2 || '-' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Producto y Plan -->
+        <div class="card p-0">
+          <div class="card-header flex items-center gap-2 py-2 px-3">
+            <span class="w-1 h-4 bg-purple-500 rounded-full"></span>
+            <h3 class="card-title text-sm">Producto y Plan</h3>
+          </div>
+          <div class="card-body space-y-1 py-2 px-3">
+            <div class="grid grid-cols-[auto_1fr] gap-x-2 gap-y-0.5">
+              <span class="text-xs text-gray-500">Producto:</span>
+              <span class="min-w-0">
+                <span class="badge text-xs" [ngClass]="getProductoBadgeClass(selectedVenta()!.producto)">
+                  {{ selectedVenta()!.producto || '-' }}
+                </span>
+              </span>
+            </div>
+            <div class="grid grid-cols-[auto_1fr] gap-x-2 gap-y-0.5">
+              <span class="text-xs text-gray-500">Plan:</span>
+              <span class="text-xs text-gray-900 min-w-0 break-words">{{ selectedVenta()!.plan || '-' }}</span>
+            </div>
+            <div class="grid grid-cols-[auto_1fr] gap-x-2 gap-y-0.5">
+              <span class="text-xs text-gray-500">Plan Original:</span>
+              <span class="text-xs text-gray-900 min-w-0 break-words">{{ selectedVenta()!.planOriginal || '-' }}</span>
+            </div>
+            <div class="grid grid-cols-[auto_1fr] gap-x-2 gap-y-0.5">
+              <span class="text-xs text-gray-500">Plan Dcto:</span>
+              <span class="text-xs text-gray-900 min-w-0 break-words">{{ selectedVenta()!.planDcto || '-' }}</span>
+            </div>
+            <div class="grid grid-cols-[auto_1fr] gap-x-2 gap-y-0.5">
+              <span class="text-xs text-gray-500">Ciclos Fact.:</span>
+              <span class="text-xs text-gray-900 min-w-0 break-words">{{ selectedVenta()!.ciclosFacturacion || '-' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Detalles de Venta -->
+        <div class="card p-0">
+          <div class="card-header flex items-center gap-2 py-2 px-3">
+            <span class="w-1 h-4 bg-orange-500 rounded-full"></span>
+            <h3 class="card-title text-sm">Detalles de Venta</h3>
+          </div>
+          <div class="card-body space-y-1 py-2 px-3">
+            <div class="grid grid-cols-[auto_1fr] gap-x-2 gap-y-0.5">
+              <span class="text-xs text-gray-500">Tipo Línea:</span>
+              <span class="text-xs text-gray-900 min-w-0 break-words">{{ selectedVenta()!.tipoLinea || '-' }}</span>
+            </div>
+            <div class="grid grid-cols-[auto_1fr] gap-x-2 gap-y-0.5">
+              <span class="text-xs text-gray-500">Compañía Donante:</span>
+              <span class="text-xs text-gray-900 min-w-0 break-words">{{ selectedVenta()!.companiaDonante || '-' }}</span>
+            </div>
+            <div class="grid grid-cols-[auto_1fr] gap-x-2 gap-y-0.5">
+              <span class="text-xs text-gray-500">Método Entrega:</span>
+              <span class="text-xs text-gray-900 min-w-0 break-words">{{ selectedVenta()!.metodoEntrega || '-' }}</span>
+            </div>
+            <div class="grid grid-cols-[auto_1fr] gap-x-2 gap-y-0.5">
+              <span class="text-xs text-gray-500">NIP:</span>
+              <span class="text-xs font-mono text-gray-900 min-w-0 break-all">{{ selectedVenta()!.nip || '-' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Fechas -->
+        <div class="card p-0">
+          <div class="card-header flex items-center gap-2 py-2 px-3">
+            <span class="w-1 h-4 bg-pink-500 rounded-full"></span>
+            <h3 class="card-title text-sm">Fechas</h3>
+          </div>
+          <div class="card-body space-y-1 py-2 px-3">
+            <div class="grid grid-cols-[auto_1fr] gap-x-2 gap-y-0.5">
+              <span class="text-xs text-gray-500">Inicio Gestión:</span>
+              <span class="text-xs font-mono text-gray-900 min-w-0 break-all">{{ formatDateTime(selectedVenta()!.fechaInicioGestion) }}</span>
+            </div>
+            <div class="grid grid-cols-[auto_1fr] gap-x-2 gap-y-0.5">
+              <span class="text-xs text-gray-500">Fin Gestión:</span>
+              <span class="text-xs font-mono text-gray-900 min-w-0 break-all">{{ formatDateTime(selectedVenta()!.fechaFinGestion) }}</span>
+            </div>
+            <div class="grid grid-cols-[auto_1fr] gap-x-2 gap-y-0.5">
+              <span class="text-xs text-gray-500">Tiempo Gestión:</span>
+              <span class="text-xs font-mono font-semibold text-gray-900 min-w-0 break-all">{{ formatTiempoGestion(selectedVenta()!.fechaInicioGestion, selectedVenta()!.fechaFinGestion) }}</span>
+            </div>
+            <div class="grid grid-cols-[auto_1fr] gap-x-2 gap-y-0.5">
+              <span class="text-xs text-gray-500">Fecha Registro:</span>
+              <span class="text-xs font-mono text-gray-900 min-w-0 break-all">{{ formatDate(selectedVenta()!.fechaRegistro) || '-' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dirección de Entrega -->
+        <div class="card p-0">
+          <div class="card-header flex items-center gap-2 py-2 px-3">
+            <span class="w-1 h-4 bg-teal-500 rounded-full"></span>
+            <h3 class="card-title text-sm">Dirección de Entrega</h3>
+          </div>
+          <div class="card-body space-y-1 py-2 px-3">
+            @if (direccionEntrega()) {
+              <div class="grid grid-cols-[auto_1fr] gap-x-2 gap-y-0.5">
+                <span class="text-xs text-gray-500">Calle:</span>
+                <span class="text-xs text-gray-900 min-w-0 break-words">{{ direccionEntrega()!.calle || '-' }}</span>
+              </div>
+              <div class="grid grid-cols-[auto_1fr] gap-x-2 gap-y-0.5">
+                <span class="text-xs text-gray-500">Nro Ext / Int:</span>
+                <span class="text-xs text-gray-900 min-w-0">{{ direccionEntrega()!.numeroExterior || '-' }} / {{ direccionEntrega()!.numeroInterior || '-' }}</span>
+              </div>
+              <div class="grid grid-cols-[auto_1fr] gap-x-2 gap-y-0.5">
+                <span class="text-xs text-gray-500">Entre calles:</span>
+                <span class="text-xs text-gray-900 min-w-0 break-words">{{ direccionEntrega()!.entreCalles || '-' }}</span>
+              </div>
+              <div class="grid grid-cols-[auto_1fr] gap-x-2 gap-y-0.5">
+                <span class="text-xs text-gray-500">C.P.:</span>
+                <span class="text-xs font-mono text-gray-900 min-w-0">{{ direccionEntrega()!.codigoPostal || '-' }}</span>
+              </div>
+              <div class="grid grid-cols-[auto_1fr] gap-x-2 gap-y-0.5">
+                <span class="text-xs text-gray-500">Colonia:</span>
+                <span class="text-xs text-gray-900 min-w-0 break-words">{{ direccionEntrega()!.colonia || '-' }}</span>
+              </div>
+              <div class="grid grid-cols-[auto_1fr] gap-x-2 gap-y-0.5">
+                <span class="text-xs text-gray-500">Delegación:</span>
+                <span class="text-xs text-gray-900 min-w-0 break-words">{{ direccionEntrega()!.delegacionMunicipio || '-' }}</span>
+              </div>
+              <div class="grid grid-cols-[auto_1fr] gap-x-2 gap-y-0.5">
+                <span class="text-xs text-gray-500">Estado:</span>
+                <span class="text-xs text-gray-900 min-w-0">{{ direccionEntrega()!.estado || '-' }}</span>
+              </div>
+            } @else {
+              <p class="text-xs text-gray-400 italic">Sin datos de dirección</p>
+            }
+          </div>
+        </div>
+
+        <!-- Dirección de Facturación -->
+        <div class="card p-0">
+          <div class="card-header flex items-center gap-2 py-2 px-3">
+            <span class="w-1 h-4 bg-amber-500 rounded-full"></span>
+            <h3 class="card-title text-sm">Dirección de Facturación</h3>
+          </div>
+          <div class="card-body space-y-1 py-2 px-3">
+            @if (direccionFacturacion()) {
+              <div class="grid grid-cols-[auto_1fr] gap-x-2 gap-y-0.5">
+                <span class="text-xs text-gray-500">Calle:</span>
+                <span class="text-xs text-gray-900 min-w-0 break-words">{{ direccionFacturacion()!.calle || '-' }}</span>
+              </div>
+              <div class="grid grid-cols-[auto_1fr] gap-x-2 gap-y-0.5">
+                <span class="text-xs text-gray-500">Nro Ext / Int:</span>
+                <span class="text-xs text-gray-900 min-w-0">{{ direccionFacturacion()!.numeroExterior || '-' }} / {{ direccionFacturacion()!.numeroInterior || '-' }}</span>
+              </div>
+              <div class="grid grid-cols-[auto_1fr] gap-x-2 gap-y-0.5">
+                <span class="text-xs text-gray-500">Entre calles:</span>
+                <span class="text-xs text-gray-900 min-w-0 break-words">{{ direccionFacturacion()!.entreCalles || '-' }}</span>
+              </div>
+              <div class="grid grid-cols-[auto_1fr] gap-x-2 gap-y-0.5">
+                <span class="text-xs text-gray-500">C.P.:</span>
+                <span class="text-xs font-mono text-gray-900 min-w-0">{{ direccionFacturacion()!.codigoPostal || '-' }}</span>
+              </div>
+              <div class="grid grid-cols-[auto_1fr] gap-x-2 gap-y-0.5">
+                <span class="text-xs text-gray-500">Colonia:</span>
+                <span class="text-xs text-gray-900 min-w-0 break-words">{{ direccionFacturacion()!.colonia || '-' }}</span>
+              </div>
+              <div class="grid grid-cols-[auto_1fr] gap-x-2 gap-y-0.5">
+                <span class="text-xs text-gray-500">Delegación:</span>
+                <span class="text-xs text-gray-900 min-w-0 break-words">{{ direccionFacturacion()!.delegacionMunicipio || '-' }}</span>
+              </div>
+              <div class="grid grid-cols-[auto_1fr] gap-x-2 gap-y-0.5">
+                <span class="text-xs text-gray-500">Estado:</span>
+                <span class="text-xs text-gray-900 min-w-0">{{ direccionFacturacion()!.estado || '-' }}</span>
+              </div>
+            } @else {
+              <p class="text-xs text-gray-400 italic">Sin datos de dirección</p>
+            }
+          </div>
+        </div>
+
+        <!-- Observaciones (Full Width) -->
+        <div class="lg:col-span-2 card p-0">
+          <div class="card-header flex items-center gap-2 py-2 px-3">
+            <span class="w-1 h-4 bg-gray-500 rounded-full"></span>
+            <h3 class="card-title text-sm">Observaciones</h3>
+          </div>
+          <div class="card-body py-2 px-3">
+            <p class="text-xs text-gray-700 whitespace-pre-wrap">{{ selectedVenta()!.observaciones || '-' }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer del Modal -->
+    <div modal-footer class="flex justify-end gap-2">
+      <button (click)="closeDetailModal()" class="button-secondary px-4 py-2 text-sm">
+        Cerrar
+      </button>
+    </div>
+
+  </app-modal>
+  }
+</div>

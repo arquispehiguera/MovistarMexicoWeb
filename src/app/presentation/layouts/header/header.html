@@ -1,0 +1,109 @@
+<header
+  class="w-full bg-white px-4 py-3 flex items-center justify-between shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)]"
+>
+  <!-- Grupo 1: Logo y Hamburguesa -->
+  <div class="flex items-center gap-4">
+    <!-- Menú hamburguesa (solo visible en móvil) -->
+    @if (isMobile) {
+      <button
+        (click)="toggleSidebar.emit()"
+        class="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+        aria-label="Abrir menú">
+        <lucide-icon [img]="Menu" class="size-6 text-slate-900" [strokeWidth]="1.5"></lucide-icon>
+      </button>
+    }
+
+   
+  </div>
+
+  <!-- Grupo 2: Acciones y Usuario -->
+  <div class="flex items-center gap-2 ml-auto" #menuContainer>
+    <!-- Notificaciones (solo desktop) -->
+    @if (!isMobile) {
+      <div class="flex items-center gap-2 mr-2">
+        <!-- Botón de notificaciones con dropdown -->
+        <div class="relative" data-tour="notifications">
+          <button
+            (click)="toggleNotifications(); $event.stopPropagation()"
+            class="relative p-2 hover:bg-gray-100 rounded-lg transition-all duration-200 group cursor-pointer"
+            [class.bg-gray-100]="notificationsOpen"
+            aria-label="Notificaciones"
+            title="Notificaciones">
+            <lucide-icon [img]="Bell" class="size-5 text-gray-700 group-hover:text-gray-900" [strokeWidth]="1.5"></lucide-icon>
+            @if (notificacionesNoLeidas() > 0) {
+              <span class="absolute -top-1 -right-1 bg-primary text-white text-xs min-w-5 h-5 flex items-center justify-center rounded-full font-semibold shadow-sm px-1">
+                {{ notificacionesNoLeidas() > 99 ? '99+' : notificacionesNoLeidas() }}
+              </span>
+            }
+          </button>
+
+          <!-- Dropdown de notificaciones -->
+          <app-notifications-dropdown
+            [isOpen]="notificationsOpen"
+            [canSendComunicados]="canSendComunicados()"
+            (close)="closeNotifications()"
+            (createComunicado)="openComunicadoModal()">
+          </app-notifications-dropdown>
+        </div>
+      </div>
+
+      <!-- Separador vertical -->
+      <div class="h-8 w-px bg-gray-200 mx-1"></div>
+    }
+
+    <!-- Avatar de Usuario -->
+    <div class="relative">
+      <button
+        (click)="toggle()"
+        class="w-10 h-10 rounded-full border-2 border-gray-300 hover:border-primary overflow-hidden transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 cursor-pointer"
+        aria-label="Menú de usuario">
+        <img
+          [src]="avatarUrl"
+          alt="Avatar de {{ userName() }}"
+          class="w-full h-full object-cover">
+      </button>
+
+      @if (open) {
+        <div class="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-xl border border-gray-200 py-2 z-50 animate-flip-down animate-duration-300">
+          <!-- Info del Usuario -->
+          <div class="px-4 py-3 border-b border-gray-100">
+            <p class="text-sm font-semibold text-gray-800 truncate">{{ userName() }}</p>
+            <p class="text-xs text-primary truncate">{{ userRole() }}</p>
+          </div>
+
+          <!-- Opciones del menú -->
+          <div class="py-1">
+            <button class="w-full flex items-center gap-3 text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer">
+              <lucide-icon [img]="UserIcon" class="w-4 h-4 text-gray-500" [strokeWidth]="1.5"></lucide-icon>
+              <span>Mi Perfil</span>
+            </button>
+
+            <button
+              (click)="startTour(); $event.stopPropagation()"
+              class="w-full flex items-center gap-3 text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer">
+              <lucide-icon [img]="HelpCircle" class="w-4 h-4 text-gray-500" [strokeWidth]="1.5"></lucide-icon>
+              <span>Ayuda</span>
+            </button>
+          </div>
+
+          <!-- Logout -->
+          <div class="border-t border-gray-100 mt-1 pt-1">
+            <button
+              (click)="logout()"
+              class="w-full flex items-center gap-3 text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors cursor-pointer">
+              <lucide-icon [img]="LogOut" class="w-4 h-4" [strokeWidth]="1.5"></lucide-icon>
+              <span class="font-medium">Cerrar Sesión</span>
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Modal para crear comunicado -->
+  <app-create-comunicado-modal
+    [isOpen]="comunicadoModalOpen"
+    (closeModal)="closeComunicadoModal()"
+    (comunicadoCreated)="notificacionBackendRepo.cargarContador()">
+  </app-create-comunicado-modal>
+</header>

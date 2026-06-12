@@ -1,0 +1,70 @@
+
+@if (loader.isLoading()) {
+  <div class="fixed inset-0 bg-black/40 backdrop-blur-md flex items-center justify-center z-[9999]">
+  <div class="loader">
+  <div class="box box-1">
+    <div class="side-left"></div>
+    <div class="side-right"></div>
+    <div class="side-top"></div>
+  </div>
+  <div class="box box-2">
+    <div class="side-left"></div>
+    <div class="side-right"></div>
+    <div class="side-top"></div>
+  </div>
+  <div class="box box-3">
+    <div class="side-left"></div>
+    <div class="side-right"></div>
+    <div class="side-top"></div>
+  </div>
+  <div class="box box-4">
+    <div class="side-left"></div>
+    <div class="side-right"></div>
+    <div class="side-top"></div>
+  </div>
+   </div>
+  </div>
+}
+
+
+<div class="min-h-screen flex relative">
+
+  <!-- Backdrop para móviles (solo visible cuando sidebar está abierto en móviles) -->
+  @if (sidebarOpen() && isMobile()) {
+    <div
+      class="fixed inset-0 bg-black/50 z-40 transition-opacity duration-300"
+      (click)="toggleSidebar()"
+    ></div>
+  }
+
+  <!-- Sidebar -->
+  <app-sidebar
+    [class]="isMobile()
+      ? 'fixed z-50 h-screen transition-transform duration-300 ease-in-out ' + (sidebarOpen() ? 'translate-x-0' : '-translate-x-full')
+      : 'sticky top-0 h-screen z-40'"
+    [isMobile]="isMobile()"
+    [isOpen]="sidebarOpen()"
+    [isCollapsed]="sidebarCollapsed()"
+    (onToggleCollapse)="toggleCollapse()"
+    (onClose)="toggleSidebar()"
+  ></app-sidebar>
+
+  <!-- Contenido principal -->
+  <div
+    class="flex flex-col flex-1 min-w-0"
+  >
+    <app-header
+      class="sticky top-0 z-30"
+      [isMobile]="isMobile()"
+      (toggleSidebar)="toggleSidebar()"
+    ></app-header>
+
+    <main class="flex-1 p-4 shadow-[inset_-12px_-8px_40px_rgba(70,70,70,0.12)] bg-gray-50">
+      <router-outlet></router-outlet>
+    </main>
+
+    <app-footer
+      class="hidden md:block shadow-[inset_-12px_-8px_40px_rgba(70,70,70,0.12)] bg-gray-50"
+    ></app-footer>
+  </div>
+</div>

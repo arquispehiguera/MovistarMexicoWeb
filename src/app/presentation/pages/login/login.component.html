@@ -1,0 +1,183 @@
+<div class="min-h-screen flex items-center justify-center relative overflow-hidden p-4 bg-gray-50">
+
+  <!-- Subtle background texture -->
+  <div class="absolute inset-0 pointer-events-none"
+    style="background-image: radial-gradient(circle, rgba(0,158,247,0.06) 1px, transparent 1px); background-size: 28px 28px"></div>
+
+  <!-- Card -->
+  <div class="relative z-10 w-full max-w-225">
+    <div class="rounded-2xl overflow-hidden bg-white"
+      style="box-shadow: 0 20px 60px rgba(0,0,0,0.10), 0 4px 16px rgba(0,0,0,0.06); border: 1px solid rgba(0,0,0,0.06)">
+      <div class="grid md:grid-cols-[44%_56%]">
+
+        <!-- ── LEFT: Brand panel (Movistar blue) ── -->
+        <div class="relative hidden md:flex flex-col justify-between p-10 overflow-hidden"
+          style="background: linear-gradient(180deg, #0A1628 0%, #0D1D31 50%, #0A1628 100%)">
+
+          <!-- Decorative rings -->
+          <div class="absolute -bottom-20 -right-20 w-72 h-72 rounded-full pointer-events-none"
+            style="border: 1px solid rgba(255,255,255,0.15)"></div>
+          <div class="absolute -bottom-10 -right-10 w-52 h-52 rounded-full pointer-events-none"
+            style="border: 1px solid rgba(255,255,255,0.10)"></div>
+          <div class="absolute top-16 -right-6 w-28 h-28 rounded-full pointer-events-none"
+            style="border: 1px solid rgba(255,255,255,0.08)"></div>
+          <!-- Glow spot -->
+          <div class="absolute top-0 left-0 w-64 h-64 rounded-full pointer-events-none -translate-x-1/2 -translate-y-1/2"
+            style="background: radial-gradient(circle, rgba(255,255,255,0.12) 0%, transparent 70%)"></div>
+
+          <!-- Logo -->
+          <div>
+            <div class="flex items-center gap-3 mb-10">
+              <img
+                src="assets/Mascota.webp"
+                alt="Movistar Maxi"
+                class="w-11 h-11 rounded-xl object-cover shrink-0" />
+              <div>
+                <p class="text-white font-bold text-base leading-none tracking-widest">MOVISTAR</p>
+                <p class="text-[11px] font-semibold tracking-[0.2em] mt-0.5 text-white/70">MÉXICO</p>
+              </div>
+            </div>
+
+            <h2 class="text-[1.75rem] font-bold text-white leading-tight mb-4">
+              Portal de<br>Gestión Comercial
+            </h2>
+            <p class="text-sm leading-relaxed text-white/70">
+              Plataforma centralizada para el seguimiento de ventas, ejecutivos y métricas en tiempo real.
+            </p>
+          </div>
+
+          <!-- Feature list -->
+          <div class="space-y-4 my-8">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+                style="background: rgba(255,255,255,0.15)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.75" class="w-4 h-4">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" />
+                </svg>
+              </div>
+              <span class="text-sm text-white/85">Dashboard de ventas en tiempo real</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+                style="background: rgba(255,255,255,0.15)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.75" class="w-4 h-4">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
+                </svg>
+              </div>
+              <span class="text-sm text-white/85">Gestión de ejecutivos y equipos</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+                style="background: rgba(255,255,255,0.15)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.75" class="w-4 h-4">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                </svg>
+              </div>
+              <span class="text-sm text-white/85">Control de metas y objetivos</span>
+            </div>
+          </div>
+
+          <!-- Footer -->
+          <p class="text-xs text-white/35">© 2026 Covisian todo los derechos reservados.</p>
+        </div>
+
+        <!-- ── RIGHT: Form panel (white) ── -->
+        <div class="flex flex-col justify-center p-8 md:p-10 bg-white">
+
+          <!-- Mobile logo -->
+          <div class="flex items-center gap-3 mb-8 md:hidden">
+            <img
+              src="assets/Mascota.webp"
+              alt="Movistar Maxi"
+              class="w-10 h-10 rounded-xl object-cover shrink-0" />
+            <div>
+              <p class="text-gray-900 font-bold text-sm leading-none tracking-widest">MOVISTAR</p>
+              <p class="text-[10px] font-semibold tracking-[0.2em] mt-0.5" style="color: #009EF7">MÉXICO</p>
+            </div>
+          </div>
+
+          <!-- Heading -->
+          <div class="mb-8">
+            <p class="text-xs font-semibold uppercase tracking-[0.2em] mb-2" style="color: #009EF7">Bienvenido</p>
+            <h1 class="text-2xl font-bold text-gray-900 mb-1.5">Iniciar sesión</h1>
+            <p class="text-sm text-gray-500">Ingresa tus credenciales para continuar</p>
+          </div>
+
+          <!-- Form -->
+          <form [formGroup]="form" (ngSubmit)="submit()" class="space-y-5">
+
+            <!-- Usuario -->
+            <div>
+              <label class="text-xs font-semibold uppercase tracking-wider mb-2 block text-gray-500">
+                Usuario
+              </label>
+              <div class="relative">
+                <input
+                  type="text"
+                  formControlName="usuario"
+                  placeholder="Ingresa tu usuario"
+                  class="pr-10 py-3"
+                  [ngClass]="invalid('usuario') ? 'input-error' : 'input'" />
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="1.5" class="w-4 h-4 absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                </svg>
+              </div>
+            </div>
+
+            <!-- Contraseña -->
+            <div>
+              <label class="text-xs font-semibold uppercase tracking-wider mb-2 block text-gray-500">
+                Contraseña
+              </label>
+              <div class="relative">
+                <input
+                  [type]="passwordVisible ? 'text' : 'password'"
+                  formControlName="password"
+                  placeholder="••••••••"
+                  class="pr-10 py-3"
+                  [ngClass]="invalid('password') ? 'input-error' : 'input'" />
+                <button type="button" (click)="togglePasswordVisibility()"
+                  class="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors focus:outline-none">
+                  <svg *ngIf="passwordVisible; else eyeOpen" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                    fill="none" stroke="currentColor" stroke-width="1.5" class="w-4 h-4">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88" />
+                  </svg>
+                  <ng-template #eyeOpen>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                      stroke-width="1.5" class="w-4 h-4">
+                      <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                    </svg>
+                  </ng-template>
+                </button>
+              </div>
+            </div>
+
+            <!-- Submit -->
+            <button
+              type="submit"
+              class="button w-full py-3 mt-1"
+              [disabled]="loginUseCase.loading()">
+              <app-spinner *ngIf="loginUseCase.loading()"></app-spinner>
+              <span *ngIf="!loginUseCase.loading()">Ingresar</span>
+            </button>
+
+          </form>
+
+          <!-- Support hint -->
+          <p class="text-xs text-gray-400 text-center mt-8">
+            ¿Problemas para acceder? Contacta a soporte interno.
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,305 @@
+<div class="min-h-screen bg-gray-50 p-4 md:p-6">
+  <div class="max-w-7xl mx-auto">
+    <!-- Header -->
+    <div class="mb-6 md:mb-8">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div>
+          <h1 class="text-2xl md:text-3xl font-bold text-gray-900">Gestión de Temáticos</h1>
+          <p class="mt-1 text-sm text-gray-600">
+            Administra los resultados y motivos de contacto
+          </p>
+        </div>
+        @if (!permissions.isReadOnly()) {
+          <button
+            (click)="openModalForNewResultado()"
+            class="inline-flex items-center gap-2 px-4 py-2 button shadow-sm self-start sm:self-auto shrink-0"
+          >
+            <lucide-icon [img]="Plus" [size]="20"></lucide-icon>
+            Nuevo Resultado
+          </button>
+        }
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    @if (getTematicosUseCase.loading()) {
+      <div class="flex items-center justify-center py-12">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    }
+
+
+
+    <!-- Content -->
+    @if (!getTematicosUseCase.loading()) {
+      <!-- Empty State -->
+      @if (resultadosGrouped().length === 0) {
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
+          <div class="max-w-md mx-auto">
+            <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <lucide-icon [img]="Plus" [size]="32" class="text-gray-400"></lucide-icon>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">
+              No hay temáticos registrados
+            </h3>
+            @if (!permissions.isReadOnly()) {
+              <p class="text-gray-600 mb-6">
+                Comienza creando tu primer resultado y sus motivos asociados
+              </p>
+              <button
+                (click)="openModalForNewResultado()"
+                class="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
+              >
+                <lucide-icon [img]="Plus" [size]="20"></lucide-icon>
+                Crear Primer Resultado
+              </button>
+            } @else {
+              <p class="text-gray-600">No tienes permisos para crear temáticos</p>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- Results Grid -->
+      @if (resultadosGrouped().length > 0) {
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 items-start">
+          @for (group of resultadosGrouped(); track group.resultado) {
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow h-fit">
+              <!-- Card Header -->
+              <div
+                class="p-4 border-b border-gray-100 cursor-pointer select-none bg-gradient-to-r from-primary/5 to-transparent"
+                (click)="toggleResultado(group.resultado)"
+              >
+                <div class="flex items-start justify-between">
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-2 mb-2">
+                      <lucide-icon
+                        [img]="isExpanded(group.resultado) ? ChevronDown : ChevronRight"
+                        [size]="20"
+                        class="text-primary shrink-0 transition-transform"
+                      ></lucide-icon>
+                      <h3 class="text-sm font-bold text-gray-900 truncate">
+                        {{ group.resultado }}
+                      </h3>
+                    </div>
+                    <div class="flex items-center gap-3 ml-7">
+                      <span class="text-xs text-gray-600">
+                        {{ group.motivos.length }} motivo{{ group.motivos.length !== 1 ? 's' : '' }}
+                      </span>
+                      <span class="inline-flex items-center gap-1 text-xs text-green-700 bg-green-50 px-2 py-0.5 rounded-full">
+                        <span class="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
+                        {{ getActiveCount(group.motivos) }} activos
+                      </span>
+                      @if (getInactiveCount(group.motivos) > 0) {
+                        <span class="inline-flex items-center gap-1 text-xs text-gray-600 bg-gray-50 px-2 py-0.5 rounded-full">
+                          <span class="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>
+                          {{ getInactiveCount(group.motivos) }} inactivos
+                        </span>
+                      }
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Collapsible Content -->
+              @if (isExpanded(group.resultado)) {
+                <div class="p-4 space-y-3 animate-in fade-in duration-200">
+                  <!-- Search Bar -->
+                  @if (group.motivos.length > 5) {
+                    <div class="relative">
+                      <lucide-icon
+                        [img]="Search"
+                        [size]="16"
+                        class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+                      ></lucide-icon>
+                      <input
+                        type="text"
+                        [value]="getSearchTerm(group.resultado)"
+                        (input)="onSearchChange(group.resultado, $any($event.target).value)"
+                        placeholder="Buscar motivo..."
+                        class="w-full pl-10 pr-10 py-2 border-2 border-gray-200 rounded-lg text-sm placeholder:text-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                      />
+                      @if (getSearchTerm(group.resultado)) {
+                        <button
+                          (click)="clearSearch(group.resultado)"
+                          class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                        >
+                          <lucide-icon [img]="X" [size]="16"></lucide-icon>
+                        </button>
+                      }
+                    </div>
+                  }
+
+                  <!-- Motivos List with Scroll -->
+                  <div class="space-y-2 max-h-96 overflow-y-auto pr-1 custom-scrollbar">
+                  @for (motivo of getFilteredMotivos(group.motivos, group.resultado); track motivo.tematicoID) {
+                    <div
+                      class="flex items-center justify-between p-3 rounded-lg border transition-all"
+                      [class.bg-white]="motivo.activo"
+                      [class.border-gray-200]="motivo.activo"
+                      [class.bg-gray-50]="!motivo.activo"
+                      [class.border-gray-100]="!motivo.activo"
+                    >
+                      <div class="flex-1 min-w-0" [class.opacity-60]="!motivo.activo">
+                        <p
+                          class="text-sm font-medium truncate"
+                          [class.text-gray-900]="motivo.activo"
+                          [class.text-gray-500]="!motivo.activo"
+                        >
+                          {{ motivo.motivo }}
+                        </p>
+                        <p class="text-xs text-gray-500 mt-1">
+                          ID: {{ motivo.tematicoID }}
+                        </p>
+                      </div>
+                      <button
+                        (click)="!permissions.isReadOnly() && toggleStatus(motivo)"
+                        class="ml-3 relative inline-flex h-6 w-11 shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+                        [class.bg-primary]="motivo.activo"
+                        [class.bg-gray-400]="!motivo.activo"
+                        [class.cursor-pointer]="!permissions.isReadOnly()"
+                        [class.cursor-not-allowed]="permissions.isReadOnly()"
+                        [class.opacity-60]="permissions.isReadOnly()"
+                        [attr.aria-checked]="motivo.activo"
+                        [disabled]="permissions.isReadOnly()"
+                        role="switch"
+                      >
+                        <span
+                          class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
+                          [class.translate-x-5]="motivo.activo"
+                          [class.translate-x-0]="!motivo.activo"
+                        ></span>
+                      </button>
+                    </div>
+                  }
+
+                  @if (getFilteredMotivos(group.motivos, group.resultado).length === 0) {
+                    <div class="text-center py-8 text-gray-500">
+                      <lucide-icon [img]="Search" [size]="32" class="mx-auto mb-2 text-gray-400"></lucide-icon>
+                      <p class="text-sm">No se encontraron motivos</p>
+                    </div>
+                  }
+                  </div>
+
+                  <!-- Add Motivo Button (oculto para COORDINADOR) -->
+                  @if (!permissions.isReadOnly()) {
+                    <button
+                      (click)="openModalForExistingResultado(group.resultado); $event.stopPropagation()"
+                      class="cursor-pointer w-full flex items-center justify-center gap-2 p-3 py-2 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-primary hover:text-primary hover:bg-primary/5 transition-all"
+                    >
+                      <lucide-icon [img]="Plus" [size]="16"></lucide-icon>
+                      <span class="text-sm">Añadir motivo</span>
+                    </button>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+    }
+  </div>
+
+  <!-- Modal -->
+  <app-modal
+    [title]="isNewResultado() ? 'Nuevo Resultado y Motivo' : 'Añadir Motivo a: ' + selectedResultado()"
+    [isOpen]="showModal()"
+    [size]="'lg'"
+    (closeModal)="closeModal()"
+  >
+    <form [formGroup]="motivoForm" (ngSubmit)="onSubmit()" class="space-y-4">
+      <!-- Resultado Field -->
+      @if (isNewResultado()) {
+        <div>
+          <label for="resultado" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Resultado <span class="text-red-500">*</span>
+          </label>
+          <input
+            id="resultado"
+            type="text"
+            formControlName="resultado"
+            placeholder="Ej: CONTACTO EFECTIVO"
+            class="block w-full input sm:text-sm px-4 py-2.5 border placeholder:text-slate-400"
+            [ngClass]="invalid('resultado') ? 'input-error' : 'input'"
+          />
+          @if (isFieldInvalid('resultado')) {
+            <p class="mt-2 text-sm text-red-600">El resultado es obligatorio</p>
+          }
+        </div>
+      }
+
+      <!-- Motivo Field -->
+      <div>
+        <label for="motivo" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          Motivo <span class="text-red-500">*</span>
+        </label>
+        <input
+          id="motivo"
+          type="text"
+          formControlName="motivo"
+          placeholder="Ej: CLIENTE INTERESADO"
+          class="block w-full input sm:text-sm px-4 py-2.5 border placeholder:text-slate-400"
+          [ngClass]="invalid('motivo') ? 'input-error' : 'input'"
+        />
+        @if (isFieldInvalid('motivo')) {
+          <p class="mt-2 text-sm text-red-600">El motivo es obligatorio</p>
+        }
+      </div>
+
+      <!-- Activo Toggle -->
+      <div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+        <div>
+          <label for="activo" class="block text-sm font-medium text-gray-900 dark:text-gray-100">
+            Estado inicial
+          </label>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+            {{ motivoForm.get('activo')?.value ? 'Activo' : 'Inactivo' }}
+          </p>
+        </div>
+        <button
+          type="button"
+          (click)="motivoForm.patchValue({ activo: !motivoForm.get('activo')?.value })"
+          class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+          [class.bg-primary]="motivoForm.get('activo')?.value"
+          [class.bg-gray-200]="!motivoForm.get('activo')?.value"
+          role="switch"
+          [attr.aria-checked]="motivoForm.get('activo')?.value"
+        >
+          <span
+            class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
+            [class.translate-x-5]="motivoForm.get('activo')?.value"
+            [class.translate-x-0]="!motivoForm.get('activo')?.value"
+          ></span>
+        </button>
+      </div>
+
+      <!-- Actions -->
+      <div modal-footer class="flex gap-3 justify-end">
+        <button
+          type="button"
+          (click)="closeModal()"
+          class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+        >
+          Cancelar
+        </button>
+        <button
+          type="submit"
+          [disabled]="motivoForm.invalid || createTematicoUseCase.loading()"
+          class="px-4 py-2 button disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          @if (createTematicoUseCase.loading()) {
+            <span class="flex items-center justify-center gap-2">
+              <svg class="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Guardando...
+            </span>
+          } @else {
+            Guardar
+          }
+        </button>
+      </div>
+    </form>
+  </app-modal>
+</div>

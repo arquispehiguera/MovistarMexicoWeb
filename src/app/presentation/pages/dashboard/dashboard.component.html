@@ -1,0 +1,380 @@
+<div class="p-4 md:p-6">
+  <!-- Header -->
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-800 dark:text-white mb-2">Dashboard</h1>
+      <p class="text-gray-600 dark:text-gray-400">
+        @if (canViewGlobalMetrics()) {
+          Resumen general de ventas y metricas del sistema
+        } @else {
+          Resumen de tus ventas y metricas personales
+        }
+      </p>
+    </div>
+
+    <!-- Filtros y Actualizar -->
+    <div class="mt-4 md:mt-0 flex flex-wrap items-center gap-2 sm:gap-3">
+      <ng-select
+        class="my-select w-28 min-w-0"
+        [items]="tiposFiltro"
+        bindLabel="label"
+        bindValue="value"
+        [ngModel]="selectedTipoFiltro()"
+        (ngModelChange)="selectedTipoFiltro.set($event); onFiltroChange()"
+        [clearable]="false"
+        [searchable]="false">
+      </ng-select>
+
+      <div class="flex items-center gap-1.5">
+        <lucide-icon [img]="Calendar" class="w-4 h-4 text-gray-500 shrink-0" [strokeWidth]="2"></lucide-icon>
+        <ng-select
+          class="my-select w-24 min-w-0"
+          [items]="anios"
+          [ngModel]="selectedAnio()"
+          (ngModelChange)="selectedAnio.set($event); onFiltroChange()"
+          [clearable]="false"
+          [searchable]="false">
+        </ng-select>
+      </div>
+
+      @if (showMesSelector()) {
+        <ng-select
+          class="my-select w-32 min-w-0"
+          [items]="meses"
+          bindLabel="label"
+          bindValue="value"
+          [ngModel]="selectedMes()"
+          (ngModelChange)="selectedMes.set($event); onFiltroChange()"
+          [clearable]="false"
+          [searchable]="false">
+        </ng-select>
+      }
+
+      @if (showSemanaSelector()) {
+        <ng-select
+          class="my-select w-28 min-w-0"
+          [items]="semanas"
+          bindLabel="label"
+          bindValue="value"
+          [ngModel]="selectedSemana()"
+          (ngModelChange)="selectedSemana.set($event); onFiltroChange()"
+          [clearable]="false"
+          [searchable]="false">
+        </ng-select>
+      }
+
+      @if (showDiaSelector()) {
+        <ng-select
+          class="my-select w-20 min-w-0"
+          [items]="dias"
+          [ngModel]="selectedDia()"
+          (ngModelChange)="selectedDia.set($event); onFiltroChange()"
+          [clearable]="false"
+          [searchable]="false">
+        </ng-select>
+      }
+
+      <button
+        (click)="refreshData()"
+        [disabled]="isLoading()"
+        class="button px-4 py-2 flex items-center gap-2 disabled:opacity-50">
+        <lucide-icon [img]="RefreshCw" class="w-4 h-4" [class.animate-spin]="isLoading()" [strokeWidth]="2"></lucide-icon>
+        Actualizar
+      </button>
+    </div>
+  </div>
+
+  @if (isLoading()) {
+    <div class="flex justify-center items-center py-24">
+      <app-spinner></app-spinner>
+    </div>
+  }
+
+  @if (!isLoading() && stats()) {
+    <!-- ==================== KPIs PRINCIPALES ==================== -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+      <div class="rounded-xl p-5 border border-green-200 overflow-hidden"
+        style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)">
+        <div class="flex items-start justify-between">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-wider text-green-700 mb-1">Total Ventas</p>
+            <p class="text-3xl font-bold text-green-800">{{ stats()!.totalVentas }}</p>
+            <p class="text-xs text-green-600 mt-1.5 font-medium">{{ stats()!.tasaConversion }}% conversión</p>
+          </div>
+          <div class="bg-green-500 p-2.5 rounded-xl shadow-sm shrink-0">
+            <lucide-icon [img]="CheckCircle" class="w-6 h-6 text-white" [strokeWidth]="2"></lucide-icon>
+          </div>
+        </div>
+      </div>
+
+      <div class="rounded-xl p-5 border border-blue-200 overflow-hidden"
+        style="background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)">
+        <div class="flex items-start justify-between">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-wider text-blue-700 mb-1">Total Gestiones</p>
+            <p class="text-3xl font-bold text-blue-800">{{ stats()!.totalGestiones }}</p>
+            <p class="text-xs text-blue-600 mt-1.5 font-medium">{{ stats()!.periodoVentas }}</p>
+          </div>
+          <div class="bg-blue-500 p-2.5 rounded-xl shadow-sm shrink-0">
+            <lucide-icon [img]="BarChart3" class="w-6 h-6 text-white" [strokeWidth]="2"></lucide-icon>
+          </div>
+        </div>
+      </div>
+
+      <div class="rounded-xl p-5 border border-indigo-200 overflow-hidden"
+        style="background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%)">
+        <div class="flex items-start justify-between">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-wider text-indigo-700 mb-1">Ejecutivos</p>
+            <p class="text-3xl font-bold text-indigo-800">{{ stats()!.ejecutivosLogueados }}</p>
+            <p class="text-xs text-indigo-600 mt-1.5 font-medium">logueados</p>
+          </div>
+          <div class="bg-indigo-500 p-2.5 rounded-xl shadow-sm shrink-0">
+            <lucide-icon [img]="Users" class="w-6 h-6 text-white" [strokeWidth]="2"></lucide-icon>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== METRICAS DE EFICIENCIA ==================== -->
+    <p class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">Eficiencia operativa</p>
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow p-4">
+        <div class="flex items-center gap-3">
+          <div class="bg-rose-100 dark:bg-rose-900/30 p-2 rounded-lg">
+            <lucide-icon [img]="Clock" class="w-5 h-5 text-rose-600" [strokeWidth]="2"></lucide-icon>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500 dark:text-gray-400">Tiempo Prom. Gestion</p>
+            <p class="text-lg font-bold text-gray-800 dark:text-white">{{ stats()!.tiempoPromedioGestion }}<span class="text-sm font-normal">seg</span></p>
+            <p class="text-xs text-gray-400">≈ {{ (stats()!.tiempoPromedioGestion / 60) | number:'1.1-1' }} min</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow p-4">
+        <div class="flex items-center gap-3">
+          <div class="bg-orange-100 dark:bg-orange-900/30 p-2 rounded-lg">
+            <lucide-icon [img]="Clock" class="w-5 h-5 text-orange-600" [strokeWidth]="2"></lucide-icon>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500 dark:text-gray-400">Tiempo hasta Venta</p>
+            <p class="text-lg font-bold text-gray-800 dark:text-white">{{ stats()!.tiempoHastaVenta }}<span class="text-sm font-normal">seg</span></p>
+            <p class="text-xs text-gray-400">≈ {{ (stats()!.tiempoHastaVenta / 60) | number:'1.1-1' }} min</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow p-4">
+        <div class="flex items-center gap-3">
+          <div class="bg-violet-100 dark:bg-violet-900/30 p-2 rounded-lg">
+            <lucide-icon [img]="Target" class="w-5 h-5 text-violet-600" [strokeWidth]="2"></lucide-icon>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500 dark:text-gray-400">Intentos/Exito</p>
+            <p class="text-xl font-bold text-gray-800 dark:text-white">{{ stats()!.ratioIntentosExito }}x</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow p-4">
+        <div class="flex items-center gap-3">
+          <div class="bg-teal-100 dark:bg-teal-900/30 p-2 rounded-lg">
+            <lucide-icon [img]="Clock" class="w-5 h-5 text-teal-600" [strokeWidth]="2"></lucide-icon>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500 dark:text-gray-400">Mejor Horario</p>
+            <p class="text-lg font-bold text-gray-800 dark:text-white">{{ stats()!.mejorHorarioContacto }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== DISTRIBUCION Y TIPO DE LINEA ==================== -->
+    <p class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">Distribución de ventas</p>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-5">
+        <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
+          <lucide-icon [img]="Target" class="w-5 h-5 text-indigo-500" [strokeWidth]="2"></lucide-icon>
+          Distribucion de Resultados
+        </h3>
+        @if (hasDistribucionResultados()) {
+          <div echarts [options]="resultadosDonutOptions" class="w-full h-72"></div>
+        } @else {
+          <div class="flex flex-col items-center justify-center h-64 text-center">
+            <div class="bg-gray-100 dark:bg-gray-700/50 rounded-full p-4 mb-4">
+              <lucide-icon [img]="BarChart2" class="w-10 h-10 text-gray-400 dark:text-gray-500" [strokeWidth]="1.5"></lucide-icon>
+            </div>
+            <p class="text-gray-500 dark:text-gray-400 font-medium mb-1">Sin datos disponibles</p>
+            <p class="text-sm text-gray-400 dark:text-gray-500">No hay resultados para {{ getMesNombre(selectedMes()) }} {{ selectedAnio() }}</p>
+          </div>
+        }
+      </div>
+
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-5">
+        <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
+          <lucide-icon [img]="BarChart3" class="w-5 h-5 text-blue-500" [strokeWidth]="2"></lucide-icon>
+          Ventas por Tipo de Linea
+        </h3>
+        @if (hasVentasPorTipoLinea()) {
+          <div echarts [options]="tipoLineaOptions" class="w-full h-72"></div>
+        } @else {
+          <div class="flex flex-col items-center justify-center h-64 text-center">
+            <div class="bg-blue-50 dark:bg-blue-900/20 rounded-full p-4 mb-4">
+              <lucide-icon [img]="BarChart3" class="w-10 h-10 text-blue-300 dark:text-blue-700" [strokeWidth]="1.5"></lucide-icon>
+            </div>
+            <p class="text-gray-500 dark:text-gray-400 font-medium mb-1">Sin datos de tipo de linea</p>
+            <p class="text-sm text-gray-400 dark:text-gray-500">No hay ventas por tipo de linea en este periodo</p>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- ==================== PLAN Y METODO ENTREGA ==================== -->
+    <p class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">Plan y método de entrega</p>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-5">
+        <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
+          <lucide-icon [img]="TrendingUp" class="w-5 h-5 text-blue-500" [strokeWidth]="2"></lucide-icon>
+          Ventas por Plan
+        </h3>
+        @if (hasVentasPorPlan()) {
+          <div echarts [options]="planOptions" class="w-full h-72"></div>
+        } @else {
+          <div class="flex flex-col items-center justify-center h-64 text-center">
+            <div class="bg-blue-50 dark:bg-blue-900/20 rounded-full p-4 mb-4">
+              <lucide-icon [img]="TrendingUp" class="w-10 h-10 text-blue-300 dark:text-blue-700" [strokeWidth]="1.5"></lucide-icon>
+            </div>
+            <p class="text-gray-500 dark:text-gray-400 font-medium mb-1">Sin datos de plan</p>
+            <p class="text-sm text-gray-400 dark:text-gray-500">No hay ventas por plan en este periodo</p>
+          </div>
+        }
+      </div>
+
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-5">
+        <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
+          <lucide-icon [img]="ShoppingCart" class="w-5 h-5 text-emerald-500" [strokeWidth]="2"></lucide-icon>
+          Ventas por Metodo de Entrega
+        </h3>
+        @if (hasVentasPorMetodoEntrega()) {
+          <div echarts [options]="metodoEntregaOptions" class="w-full h-72"></div>
+        } @else {
+          <div class="flex flex-col items-center justify-center h-64 text-center">
+            <div class="bg-emerald-50 dark:bg-emerald-900/20 rounded-full p-4 mb-4">
+              <lucide-icon [img]="ShoppingCart" class="w-10 h-10 text-emerald-300 dark:text-emerald-700" [strokeWidth]="1.5"></lucide-icon>
+            </div>
+            <p class="text-gray-500 dark:text-gray-400 font-medium mb-1">Sin datos de metodo de entrega</p>
+            <p class="text-sm text-gray-400 dark:text-gray-500">No hay ventas por metodo de entrega en este periodo</p>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- ==================== CICLO FACTURACION Y VENTAS POR PERIODO ==================== -->
+    <p class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">Ciclo y tendencia temporal</p>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-5">
+        <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
+          <lucide-icon [img]="BarChart3" class="w-5 h-5 text-violet-500" [strokeWidth]="2"></lucide-icon>
+          Ventas por Ciclo de Facturacion
+        </h3>
+        @if (hasVentasPorCicloFacturacion()) {
+          <div echarts [options]="cicloFacturacionOptions" class="w-full h-72"></div>
+        } @else {
+          <div class="flex flex-col items-center justify-center h-64 text-center">
+            <div class="bg-violet-50 dark:bg-violet-900/20 rounded-full p-4 mb-4">
+              <lucide-icon [img]="BarChart3" class="w-10 h-10 text-violet-300 dark:text-violet-700" [strokeWidth]="1.5"></lucide-icon>
+            </div>
+            <p class="text-gray-500 dark:text-gray-400 font-medium mb-1">Sin datos de ciclo de facturacion</p>
+            <p class="text-sm text-gray-400 dark:text-gray-500">No hay ventas por ciclo de facturacion en este periodo</p>
+          </div>
+        }
+      </div>
+
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-5">
+        <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">Ventas Efectivas (periodo)</h3>
+        @if (hasVentasPorPeriodo()) {
+          <div echarts [options]="areaChartOptions" class="w-full h-72"></div>
+        } @else {
+          <div class="flex flex-col items-center justify-center h-64 text-center">
+            <div class="bg-emerald-50 dark:bg-emerald-900/20 rounded-full p-4 mb-4">
+              <lucide-icon [img]="CalendarX2" class="w-10 h-10 text-emerald-300 dark:text-emerald-700" [strokeWidth]="1.5"></lucide-icon>
+            </div>
+            <p class="text-gray-500 dark:text-gray-400 font-medium mb-1">Sin ventas en el periodo</p>
+            <p class="text-sm text-gray-400 dark:text-gray-500">No se registraron ventas efectivas en estos dias</p>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- ==================== PORTABILIDAD Y TENDENCIA ==================== -->
+    <p class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">Portabilidad y conversión</p>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-5">
+        <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">Portabilidad por Compania Donante</h3>
+        @if (hasPortabilidadPorCompania()) {
+          <div class="mb-3 flex flex-wrap gap-2">
+            @for (p of stats()!.portabilidadPorCompania; track p.compania) {
+              <span class="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">
+                {{ p.compania }}: <span class="font-semibold text-green-600">{{ p.tasaExito }}%</span> exito
+              </span>
+            }
+          </div>
+          <div echarts [options]="portabilidadCompaniaOptions" class="w-full h-64"></div>
+        } @else {
+          <div class="flex flex-col items-center justify-center h-64 text-center">
+            <div class="bg-cyan-50 dark:bg-cyan-900/20 rounded-full p-4 mb-4">
+              <lucide-icon [img]="Phone" class="w-10 h-10 text-cyan-300 dark:text-cyan-700" [strokeWidth]="1.5"></lucide-icon>
+            </div>
+            <p class="text-gray-500 dark:text-gray-400 font-medium mb-1">Sin portabilidades</p>
+            <p class="text-sm text-gray-400 dark:text-gray-500">No hay datos de portabilidad por compania</p>
+          </div>
+        }
+      </div>
+
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-5">
+        <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
+          <lucide-icon [img]="TrendingUp" class="w-5 h-5 text-violet-500" [strokeWidth]="2"></lucide-icon>
+          Tendencia de Conversion
+        </h3>
+        @if (hasTendenciaConversion()) {
+          <div echarts [options]="tendenciaOptions" class="w-full h-72"></div>
+        } @else {
+          <div class="flex flex-col items-center justify-center h-64 text-center">
+            <div class="bg-violet-50 dark:bg-violet-900/20 rounded-full p-4 mb-4">
+              <lucide-icon [img]="TrendingUp" class="w-10 h-10 text-violet-300 dark:text-violet-700" [strokeWidth]="1.5"></lucide-icon>
+            </div>
+            <p class="text-gray-500 dark:text-gray-400 font-medium mb-1">Sin tendencia disponible</p>
+            <p class="text-sm text-gray-400 dark:text-gray-500">Se requieren datos de varios dias para la tendencia</p>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- ==================== TOP EJECUTIVOS ==================== -->
+    <p class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">Ranking de ejecutivos</p>
+    @if (canViewGlobalMetrics()) {
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-5 mb-6">
+        <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">Top 5 Ejecutivos</h3>
+        @if (hasTopEjecutivos()) {
+          <div class="mb-3 flex flex-wrap gap-2">
+            @for (e of stats()!.topEjecutivos; track e.usuarioID) {
+              <span class="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">
+                {{ e.nombre.split(' ')[0] }}: <span class="font-semibold text-blue-600">{{ e.tasaConversion }}%</span> conv.
+              </span>
+            }
+          </div>
+          <div echarts [options]="barChartOptions" class="w-full h-72"></div>
+        } @else {
+          <div class="flex flex-col items-center justify-center h-64 text-center">
+            <div class="bg-blue-50 dark:bg-blue-900/20 rounded-full p-4 mb-4">
+              <lucide-icon [img]="Users" class="w-10 h-10 text-blue-300 dark:text-blue-700" [strokeWidth]="1.5"></lucide-icon>
+            </div>
+            <p class="text-gray-500 dark:text-gray-400 font-medium mb-1">Sin ejecutivos destacados</p>
+            <p class="text-sm text-gray-400 dark:text-gray-500">No hay ventas de ejecutivos en este periodo</p>
+          </div>
+        }
+      </div>
+    }
+  }
+</div>

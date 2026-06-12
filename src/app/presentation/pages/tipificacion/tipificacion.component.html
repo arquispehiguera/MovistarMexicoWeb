@@ -1,0 +1,769 @@
+<div class="min-h-screen bg-gray-50 p-3 sm:p-6">
+  <div class="max-w-5xl mx-auto">
+
+    <!-- Header -->
+    <div class="mb-6 flex items-center gap-3">
+      @if (step() > 1) {
+        <button type="button" (click)="step() === 2 ? goBack() : prevStep()"
+          class="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition-colors">
+          <lucide-icon [img]="ArrowLeft" size="18"></lucide-icon>
+        </button>
+      }
+      <h1 class="text-2xl font-bold text-gray-900">Tipificación de Venta</h1>
+      @if (step() > 1 && selectedProducto()) {
+        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-primary/10 text-primary-dark">
+          {{ selectedProducto() }}
+        </span>
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-mono font-semibold bg-gray-100 text-gray-600">
+          <lucide-icon [img]="Clock" size="12"></lucide-icon>
+          {{ timerDisplay() }}
+        </span>
+      }
+    </div>
+
+    <!-- Step indicator -->
+    <div class="flex items-center gap-1 sm:gap-2 mb-6">
+
+      <div class="flex items-center gap-1 sm:gap-1.5">
+        <span class="flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold shrink-0"
+          [ngClass]="step() === 1 ? 'bg-primary text-white' : 'bg-secondary text-white'">
+          {{ step() === 1 ? '1' : '✓' }}
+        </span>
+        <span class="text-[10px] sm:text-xs font-medium leading-none" [ngClass]="step() === 1 ? 'text-primary' : 'text-secondary'">Producto</span>
+      </div>
+
+      <div class="h-px flex-1 bg-gray-200"></div>
+
+      <div class="flex items-center gap-1 sm:gap-1.5">
+        <span class="flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold shrink-0"
+          [ngClass]="step() === 2 ? 'bg-primary text-white' : step() > 2 ? 'bg-secondary text-white' : 'bg-gray-100 text-gray-400'">
+          {{ step() > 2 ? '✓' : '2' }}
+        </span>
+        <span class="text-[10px] sm:text-xs font-medium leading-none" [ngClass]="step() === 2 ? 'text-primary' : step() > 2 ? 'text-secondary' : 'text-gray-400'">Toma de Datos</span>
+      </div>
+
+      <div class="h-px flex-1 bg-gray-200"></div>
+
+      <div class="flex items-center gap-1 sm:gap-1.5">
+        <span class="flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold shrink-0"
+          [ngClass]="step() === 3 ? 'bg-primary text-white' : step() > 3 ? 'bg-secondary/15 text-secondary-dark' : 'bg-gray-100 text-gray-400'">
+          {{ step() > 3 ? '✓' : '3' }}
+        </span>
+        <span class="text-[10px] sm:text-xs font-medium leading-none" [ngClass]="step() === 3 ? 'text-primary' : step() > 3 ? 'text-secondary-dark' : 'text-gray-400'">Dir. Entrega</span>
+      </div>
+
+      <div class="h-px flex-1 bg-gray-200"></div>
+
+      <div class="flex items-center gap-1 sm:gap-1.5">
+        <span class="flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold shrink-0"
+          [ngClass]="step() === 4 ? 'bg-primary text-white' : 'bg-gray-100 text-gray-400'">
+          4
+        </span>
+        <span class="text-[10px] sm:text-xs font-medium leading-none" [ngClass]="step() === 4 ? 'text-primary' : 'text-gray-400'">Dir. Facturación</span>
+      </div>
+
+    </div>
+
+    <!-- ══════════════════════════════════════
+         STEP 1 — Selección de producto
+    ══════════════════════════════════════ -->
+    @if (step() === 1) {
+      <div class="bg-white rounded-xl border border-gray-200 px-6 py-5">
+        <p class="text-sm text-gray-500 mb-5">Seleccioná el tipo de producto para continuar</p>
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+          @for (nombre of productos; track nombre) {
+            <button type="button" (click)="selectProducto(nombre)"
+              class="group flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-gray-200 px-4 py-6 text-center transition-all hover:border-primary hover:bg-primary/5 hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
+              <span class="h-10 w-10 rounded-full bg-gray-100 group-hover:bg-primary/10 flex items-center justify-center transition-colors">
+                <span class="text-lg font-bold text-gray-500 group-hover:text-primary">
+                  {{ nombre.charAt(0) }}
+                </span>
+              </span>
+              <span class="text-sm font-semibold text-gray-700 group-hover:text-primary-dark">
+                {{ nombre }}
+              </span>
+            </button>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- ══════════════════════════════════════
+         STEP 2 — Formulario de tipificación
+    ══════════════════════════════════════ -->
+    @if (step() === 2) {
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" class="bg-white rounded-xl border border-gray-200 px-6 py-5 space-y-5" autocomplete="off">
+
+        <!-- ── Datos del Cliente ── -->
+        <div class="relative flex items-center">
+          <div class="flex-grow border-t border-gray-200"></div>
+          <span class="mx-3 text-xs font-semibold uppercase tracking-wider text-gray-400">Datos del Cliente</span>
+          <div class="flex-grow border-t border-gray-200"></div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">
+              Nombres <span class="text-red-500">*</span>
+            </label>
+            <input type="text" formControlName="nombres"
+              class="block w-full input px-3 py-1.5 text-sm"
+              [ngClass]="invalid('nombres') ? 'input-error' : ''"
+              autocomplete="off" data-form-type="other" data-lpignore="true" />
+            @if (invalid('nombres')) {
+              <p class="mt-0.5 text-xs text-red-600">Campo obligatorio</p>
+            }
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">
+              Apellido Paterno <span class="text-red-500">*</span>
+            </label>
+            <input type="text" formControlName="apellidoPaterno"
+              class="block w-full input px-3 py-1.5 text-sm"
+              [ngClass]="invalid('apellidoPaterno') ? 'input-error' : ''"
+              autocomplete="off" data-form-type="other" data-lpignore="true" />
+            @if (invalid('apellidoPaterno')) {
+              <p class="mt-0.5 text-xs text-red-600">Campo obligatorio</p>
+            }
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Apellido Materno</label>
+            <input type="text" formControlName="apellidoMaterno"
+              class="block w-full input px-3 py-1.5 text-sm"
+              autocomplete="off" data-form-type="other" data-lpignore="true" />
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Fecha de Nacimiento</label>
+            <app-custom-datepicker
+              formControlName="fechaNacimiento"
+              placeholder="Seleccione fecha"
+              [maxDate]="fechaMaximaNacimiento"
+              [inputClass]="'block w-full input px-3 py-1.5 text-sm'"
+            ></app-custom-datepicker>
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Correo Electrónico</label>
+            <input type="email" formControlName="correoElectronico"
+              class="block w-full input px-3 py-1.5 text-sm"
+              [ngClass]="invalid('correoElectronico') ? 'input-error' : ''"
+              autocomplete="off" data-form-type="other" data-lpignore="true" />
+            @if (invalid('correoElectronico')) {
+              <p class="mt-0.5 text-xs text-red-600">Correo inválido</p>
+            }
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Numero</label>
+            <input type="text" formControlName="numero"
+              class="block w-full input px-3 py-1.5 text-sm"
+              autocomplete="off" data-form-type="other" data-lpignore="true" />
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">
+              INE <span class="text-gray-400">(18 car.)</span>
+            </label>
+            <input type="text" formControlName="ine"
+              class="block w-full input px-3 py-1.5 text-sm uppercase"
+              [ngClass]="invalid('ine') ? 'input-error' : ''"
+              maxlength="18"
+              autocomplete="off" data-form-type="other" data-lpignore="true" />
+            @if (invalid('ine')) {
+              <p class="mt-0.5 text-xs text-red-600">Exactamente 18 caracteres alfanuméricos</p>
+            }
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">
+              CURP <span class="text-gray-400">(18 car.)</span>
+            </label>
+            <input type="text" formControlName="curp"
+              class="block w-full input px-3 py-1.5 text-sm uppercase"
+              [ngClass]="invalid('curp') ? 'input-error' : ''"
+              maxlength="18"
+              autocomplete="off" data-form-type="other" data-lpignore="true" />
+            @if (invalid('curp')) {
+              <p class="mt-0.5 text-xs text-red-600">Exactamente 18 caracteres alfanuméricos</p>
+            }
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">
+              RFC <span class="text-gray-400">(13 car.)</span>
+            </label>
+            <input type="text" formControlName="rfc"
+              class="block w-full input px-3 py-1.5 text-sm uppercase"
+              [ngClass]="invalid('rfc') ? 'input-error' : ''"
+              maxlength="13"
+              autocomplete="off" data-form-type="other" data-lpignore="true" />
+            @if (invalid('rfc')) {
+              <p class="mt-0.5 text-xs text-red-600">Exactamente 13 caracteres alfanuméricos</p>
+            }
+          </div>
+
+        </div>
+
+        <!-- ── Datos de Portabilidad ── -->
+        <div class="relative flex items-center">
+          <div class="flex-grow border-t border-gray-200"></div>
+          <span class="mx-3 text-xs font-semibold uppercase tracking-wider text-gray-400">Datos de Portabilidad</span>
+          <div class="flex-grow border-t border-gray-200"></div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">
+              Número a Portar <span class="text-red-500">*</span> <span class="text-gray-400">(9 díg.)</span>
+            </label>
+            <input type="text" formControlName="dn"
+              mask="000000000" [showMaskTyped]="false"
+              class="block w-full input px-3 py-1.5 text-sm"
+              [ngClass]="invalid('dn') ? 'input-error' : ''"
+              placeholder="#########"
+              autocomplete="off" data-form-type="other" data-lpignore="true" />
+            @if (invalid('dn')) {
+              <p class="mt-0.5 text-xs text-red-600">Exactamente 9 dígitos</p>
+            }
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">
+              DN a Portar <span class="text-red-500">*</span> <span class="text-gray-400">(15 díg.)</span>
+            </label>
+            <input type="text" formControlName="numeroPortar"
+              mask="000000000000000" [showMaskTyped]="false"
+              class="block w-full input px-3 py-1.5 text-sm"
+              [ngClass]="invalid('numeroPortar') ? 'input-error' : ''"
+              placeholder="###############"
+              autocomplete="off" data-form-type="other" data-lpignore="true" />
+            @if (invalid('numeroPortar')) {
+              <p class="mt-0.5 text-xs text-red-600">Exactamente 15 dígitos</p>
+            }
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">
+              Código NIP <span class="text-red-500">*</span> <span class="text-gray-400">(4 díg.)</span>
+            </label>
+            <input type="text" formControlName="nip"
+              mask="0000" [showMaskTyped]="false"
+              class="block w-full input px-3 py-1.5 text-sm"
+              [ngClass]="invalid('nip') ? 'input-error' : ''"
+              placeholder="####"
+              autocomplete="off" data-form-type="other" data-lpignore="true" />
+            @if (invalid('nip')) {
+              <p class="mt-0.5 text-xs text-red-600">Exactamente 4 dígitos</p>
+            }
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">
+              Compañía Donante <span class="text-red-500">*</span>
+            </label>
+            <ng-select
+              class="my-select w-full"
+              [items]="companiasDonantes"
+              formControlName="companiaDonante"
+              placeholder="Seleccionar"
+              [clearable]="true"
+              [ngClass]="invalid('companiaDonante') ? 'input-error' : ''">
+            </ng-select>
+            @if (invalid('companiaDonante')) {
+              <p class="mt-0.5 text-xs text-red-600">Campo obligatorio</p>
+            }
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">
+              Tipo de Línea <span class="text-red-500">*</span>
+            </label>
+            <ng-select
+              class="my-select w-full"
+              [items]="tiposLineaActivos()"
+              bindLabel="nombre"
+              bindValue="nombre"
+              formControlName="tipoLinea"
+              placeholder="Seleccionar"
+              [clearable]="true"
+              [ngClass]="invalid('tipoLinea') ? 'input-error' : ''">
+            </ng-select>
+            @if (invalid('tipoLinea')) {
+              <p class="mt-0.5 text-xs text-red-600">Campo obligatorio</p>
+            }
+          </div>
+
+        </div>
+
+        <!-- ── Contacto ── -->
+        <div class="relative flex items-center">
+          <div class="flex-grow border-t border-gray-200"></div>
+          <span class="mx-3 text-xs font-semibold uppercase tracking-wider text-gray-400">Contacto</span>
+          <div class="flex-grow border-t border-gray-200"></div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">
+              Teléfono de Contacto 1 <span class="text-gray-400">(9 díg.)</span>
+            </label>
+            <input type="text" formControlName="telfContacto1"
+              mask="000000000" [showMaskTyped]="false"
+              class="block w-full input px-3 py-1.5 text-sm"
+              [ngClass]="invalid('telfContacto1') ? 'input-error' : ''"
+              placeholder="#########"
+              autocomplete="off" data-form-type="other" data-lpignore="true" />
+            @if (invalid('telfContacto1')) {
+              <p class="mt-0.5 text-xs text-red-600">Exactamente 9 dígitos</p>
+            }
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">
+              Teléfono de Contacto 2 <span class="text-gray-400">(9 díg.)</span>
+            </label>
+            <input type="text" formControlName="telfContacto2"
+              mask="000000000" [showMaskTyped]="false"
+              class="block w-full input px-3 py-1.5 text-sm"
+              [ngClass]="invalid('telfContacto2') ? 'input-error' : ''"
+              placeholder="#########"
+              autocomplete="off" data-form-type="other" data-lpignore="true" />
+            @if (invalid('telfContacto2')) {
+              <p class="mt-0.5 text-xs text-red-600">Exactamente 9 dígitos</p>
+            }
+          </div>
+
+        </div>
+
+        <!-- ── Plan Comercial ── -->
+        <div class="relative flex items-center">
+          <div class="flex-grow border-t border-gray-200"></div>
+          <span class="mx-3 text-xs font-semibold uppercase tracking-wider text-gray-400">Plan Comercial</span>
+          <div class="flex-grow border-t border-gray-200"></div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">
+              Método de Entrega <span class="text-red-500">*</span>
+            </label>
+            <ng-select
+              class="my-select w-full"
+              [items]="metodosEntregaActivos()"
+              bindLabel="nombre"
+              bindValue="nombre"
+              formControlName="metodoEntrega"
+              placeholder="Seleccionar"
+              [clearable]="true"
+              [ngClass]="invalid('metodoEntrega') ? 'input-error' : ''">
+            </ng-select>
+            @if (invalid('metodoEntrega')) {
+              <p class="mt-0.5 text-xs text-red-600">Campo obligatorio</p>
+            }
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">
+              Ciclo de Facturación <span class="text-red-500">*</span>
+            </label>
+            <ng-select
+              class="my-select w-full"
+              [items]="ciclosFacturacionActivos()"
+              bindLabel="codigo"
+              bindValue="codigo"
+              formControlName="ciclosFacturacion"
+              placeholder="Seleccionar"
+              [clearable]="true"
+              [ngClass]="invalid('ciclosFacturacion') ? 'input-error' : ''">
+            </ng-select>
+            @if (invalid('ciclosFacturacion')) {
+              <p class="mt-0.5 text-xs text-red-600">Campo obligatorio</p>
+            }
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">
+              Plan <span class="text-red-500">*</span>
+            </label>
+            <ng-select
+              class="my-select w-full"
+              [items]="planesActivos()"
+              bindLabel="nombre"
+              bindValue="nombre"
+              formControlName="plan"
+              placeholder="Seleccionar"
+              [clearable]="true"
+              [ngClass]="invalid('plan') ? 'input-error' : ''">
+            </ng-select>
+            @if (invalid('plan')) {
+              <p class="mt-0.5 text-xs text-red-600">Campo obligatorio</p>
+            }
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Plan Original</label>
+            <ng-select
+              class="my-select w-full"
+              [items]="planesOriginalesActivos()"
+              bindLabel="nombre"
+              bindValue="nombre"
+              formControlName="planOriginal"
+              placeholder="Seleccionar"
+              [clearable]="true">
+            </ng-select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Plan Descuento</label>
+            <ng-select
+              class="my-select w-full"
+              [items]="planesDsctoActivos()"
+              bindLabel="nombre"
+              bindValue="nombre"
+              formControlName="planDcto"
+              placeholder="Seleccionar"
+              [clearable]="true">
+            </ng-select>
+          </div>
+
+        </div>
+
+        <!-- ── Observaciones ── -->
+        <div class="relative flex items-center">
+          <div class="flex-grow border-t border-gray-200"></div>
+          <span class="mx-3 text-xs font-semibold uppercase tracking-wider text-gray-400">Observaciones</span>
+          <div class="flex-grow border-t border-gray-200"></div>
+        </div>
+
+        <textarea formControlName="observaciones" rows="3"
+          class="block w-full input px-3 py-1.5 text-sm"
+          placeholder="Observaciones adicionales..."
+          autocomplete="off"></textarea>
+
+        <!-- Next -->
+        <div class="flex justify-end pt-1">
+          <button type="button" (click)="nextStep()"
+            class="px-6 py-2 button text-sm font-semibold">
+            Siguiente
+          </button>
+        </div>
+
+      </form>
+    }
+
+    <!-- ══════════════════════════════════════
+         STEP 3 — Dirección Entrega
+    ══════════════════════════════════════ -->
+    @if (step() === 3) {
+      <form [formGroup]="formEntrega" class="bg-white rounded-xl border border-gray-200 px-6 py-5 space-y-5" autocomplete="off">
+
+        <div class="relative flex items-center">
+          <div class="flex-grow border-t border-gray-200"></div>
+          <span class="mx-3 text-xs font-semibold uppercase tracking-wider text-gray-400">Dirección de Entrega</span>
+          <div class="flex-grow border-t border-gray-200"></div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+            <div class="md:col-span-2">
+              <label class="block text-xs font-medium text-gray-600 mb-1">Calle <span class="text-red-500">*</span></label>
+              <input type="text" formControlName="calle"
+                class="block w-full input px-3 py-1.5 text-sm"
+                [ngClass]="invalidE('calle') ? 'input-error' : ''"
+                autocomplete="off" data-form-type="other" data-lpignore="true" />
+              @if (invalidE('calle')) { <p class="mt-0.5 text-xs text-red-600">Campo obligatorio</p> }
+            </div>
+
+            <div>
+              <label class="block text-xs font-medium text-gray-600 mb-1">Número Exterior <span class="text-red-500">*</span></label>
+              <input type="text" formControlName="numeroExterior"
+                class="block w-full input px-3 py-1.5 text-sm"
+                [ngClass]="invalidE('numeroExterior') ? 'input-error' : ''"
+                autocomplete="off" data-form-type="other" data-lpignore="true" />
+              @if (invalidE('numeroExterior')) { <p class="mt-0.5 text-xs text-red-600">Campo obligatorio</p> }
+            </div>
+
+            <div>
+              <label class="block text-xs font-medium text-gray-600 mb-1">Número Interior</label>
+              <input type="text" formControlName="numeroInterior"
+                class="block w-full input px-3 py-1.5 text-sm"
+                autocomplete="off" data-form-type="other" data-lpignore="true" />
+            </div>
+
+            <div>
+              <label class="block text-xs font-medium text-gray-600 mb-1">Entre Calles</label>
+              <input type="text" formControlName="entreCalles"
+                class="block w-full input px-3 py-1.5 text-sm"
+                autocomplete="off" data-form-type="other" data-lpignore="true" />
+            </div>
+
+            <div>
+              <label class="block text-xs font-medium text-gray-600 mb-1">Referencias</label>
+              <input type="text" formControlName="referencias"
+                class="block w-full input px-3 py-1.5 text-sm"
+                autocomplete="off" data-form-type="other" data-lpignore="true" />
+            </div>
+
+            <div class="md:col-span-3">
+              <label class="block text-xs font-medium text-gray-600 mb-1">Dirección Completa</label>
+              <input type="text" formControlName="direccionCompleta"
+                class="block w-full input px-3 py-1.5 text-sm"
+                autocomplete="off" data-form-type="other" data-lpignore="true" />
+            </div>
+
+            <div>
+              <label class="block text-xs font-medium text-gray-600 mb-1">Código Postal <span class="text-red-500">*</span></label>
+              <input type="text" formControlName="codigoPostal"
+                class="block w-full input px-3 py-1.5 text-sm"
+                [ngClass]="invalidE('codigoPostal') ? 'input-error' : ''"
+                autocomplete="off" data-form-type="other" data-lpignore="true" />
+              @if (invalidE('codigoPostal')) { <p class="mt-0.5 text-xs text-red-600">Campo obligatorio</p> }
+            </div>
+
+            <div>
+              <label class="block text-xs font-medium text-gray-600 mb-1">Colonia <span class="text-red-500">*</span></label>
+              <input type="text" formControlName="colonia"
+                class="block w-full input px-3 py-1.5 text-sm"
+                [ngClass]="invalidE('colonia') ? 'input-error' : ''"
+                autocomplete="off" data-form-type="other" data-lpignore="true" />
+              @if (invalidE('colonia')) { <p class="mt-0.5 text-xs text-red-600">Campo obligatorio</p> }
+            </div>
+
+            <div>
+              <label class="block text-xs font-medium text-gray-600 mb-1">Delegación / Municipio <span class="text-red-500">*</span></label>
+              <input type="text" formControlName="delegacionMunicipio"
+                class="block w-full input px-3 py-1.5 text-sm"
+                [ngClass]="invalidE('delegacionMunicipio') ? 'input-error' : ''"
+                autocomplete="off" data-form-type="other" data-lpignore="true" />
+              @if (invalidE('delegacionMunicipio')) { <p class="mt-0.5 text-xs text-red-600">Campo obligatorio</p> }
+            </div>
+
+            <div>
+              <label class="block text-xs font-medium text-gray-600 mb-1">Estado <span class="text-red-500">*</span></label>
+              <ng-select
+                class="my-select w-full"
+                [items]="estadosActivos()"
+                bindLabel="nombre"
+                bindValue="nombre"
+                formControlName="estado"
+                placeholder="Seleccionar"
+                [clearable]="true"
+                [ngClass]="invalidE('estado') ? 'input-error' : ''">
+              </ng-select>
+              @if (invalidE('estado')) { <p class="mt-0.5 text-xs text-red-600">Campo obligatorio</p> }
+            </div>
+
+        </div>
+
+        <!-- ── Observaciones ── -->
+        <div class="relative flex items-center">
+          <div class="flex-grow border-t border-gray-200"></div>
+          <span class="mx-3 text-xs font-semibold uppercase tracking-wider text-gray-400">Observaciones</span>
+          <div class="flex-grow border-t border-gray-200"></div>
+        </div>
+
+        <textarea [formControl]="obsControl" rows="3"
+          class="block w-full input px-3 py-1.5 text-sm"
+          placeholder="Observaciones adicionales..."
+          autocomplete="off"></textarea>
+
+        <div class="flex justify-between pt-1">
+          <button type="button" (click)="prevStep()"
+            class="px-6 py-2 text-sm font-semibold bg-[#0D1D31] text-white rounded-lg hover:bg-[#0A1628] transition-colors">
+            Anterior
+          </button>
+          <button type="button" (click)="nextStepEntrega()"
+            class="px-6 py-2 button text-sm font-semibold">
+            Siguiente
+          </button>
+        </div>
+
+      </form>
+    }
+
+    <!-- ══════════════════════════════════════
+         STEP 4 — Dirección Facturación
+    ══════════════════════════════════════ -->
+    @if (step() === 4) {
+      <form [formGroup]="formFacturacion" (ngSubmit)="onSubmit()" class="bg-white rounded-xl border border-gray-200 px-6 py-5 space-y-5" autocomplete="off">
+
+        <div class="relative flex items-center">
+          <div class="flex-grow border-t border-gray-200"></div>
+          <span class="mx-3 text-xs font-semibold uppercase tracking-wider text-gray-400">Dirección de Facturación</span>
+          <div class="flex-grow border-t border-gray-200"></div>
+        </div>
+
+        <label class="flex items-center gap-3 cursor-pointer select-none w-fit">
+          <input type="checkbox" formControlName="mismaQueEntrega" class="sr-only peer" />
+          <div class="relative w-10 h-5 rounded-full bg-gray-200 transition-colors peer-checked:bg-primary peer-focus-visible:ring-2 peer-focus-visible:ring-primary peer-focus-visible:ring-offset-1
+            after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-4 after:w-4 after:shadow-sm after:transition-all
+            peer-checked:after:translate-x-5"></div>
+          <span class="text-sm font-medium text-gray-600">Misma que dirección de entrega</span>
+        </label>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+          <div class="md:col-span-2">
+            <label class="block text-xs font-medium text-gray-600 mb-1">Calle <span class="text-red-500">*</span></label>
+            <input type="text" formControlName="calle"
+              class="block w-full input px-3 py-1.5 text-sm"
+              [ngClass]="invalidF('calle') ? 'input-error' : ''"
+              autocomplete="off" data-form-type="other" data-lpignore="true" />
+            @if (invalidF('calle')) { <p class="mt-0.5 text-xs text-red-600">Campo obligatorio</p> }
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Número Exterior <span class="text-red-500">*</span></label>
+            <input type="text" formControlName="numeroExterior"
+              class="block w-full input px-3 py-1.5 text-sm"
+              [ngClass]="invalidF('numeroExterior') ? 'input-error' : ''"
+              autocomplete="off" data-form-type="other" data-lpignore="true" />
+            @if (invalidF('numeroExterior')) { <p class="mt-0.5 text-xs text-red-600">Campo obligatorio</p> }
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Número Interior</label>
+            <input type="text" formControlName="numeroInterior"
+              class="block w-full input px-3 py-1.5 text-sm"
+              autocomplete="off" data-form-type="other" data-lpignore="true" />
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Entre Calles</label>
+            <input type="text" formControlName="entreCalles"
+              class="block w-full input px-3 py-1.5 text-sm"
+              autocomplete="off" data-form-type="other" data-lpignore="true" />
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Referencias</label>
+            <input type="text" formControlName="referencias"
+              class="block w-full input px-3 py-1.5 text-sm"
+              autocomplete="off" data-form-type="other" data-lpignore="true" />
+          </div>
+
+          <div class="md:col-span-3">
+            <label class="block text-xs font-medium text-gray-600 mb-1">Dirección Completa</label>
+            <input type="text" formControlName="direccionCompleta"
+              class="block w-full input px-3 py-1.5 text-sm"
+              autocomplete="off" data-form-type="other" data-lpignore="true" />
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Código Postal <span class="text-red-500">*</span></label>
+            <input type="text" formControlName="codigoPostal"
+              class="block w-full input px-3 py-1.5 text-sm"
+              [ngClass]="invalidF('codigoPostal') ? 'input-error' : ''"
+              autocomplete="off" data-form-type="other" data-lpignore="true" />
+            @if (invalidF('codigoPostal')) { <p class="mt-0.5 text-xs text-red-600">Campo obligatorio</p> }
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Colonia <span class="text-red-500">*</span></label>
+            <input type="text" formControlName="colonia"
+              class="block w-full input px-3 py-1.5 text-sm"
+              [ngClass]="invalidF('colonia') ? 'input-error' : ''"
+              autocomplete="off" data-form-type="other" data-lpignore="true" />
+            @if (invalidF('colonia')) { <p class="mt-0.5 text-xs text-red-600">Campo obligatorio</p> }
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Delegación / Municipio <span class="text-red-500">*</span></label>
+            <input type="text" formControlName="delegacionMunicipio"
+              class="block w-full input px-3 py-1.5 text-sm"
+              [ngClass]="invalidF('delegacionMunicipio') ? 'input-error' : ''"
+              autocomplete="off" data-form-type="other" data-lpignore="true" />
+            @if (invalidF('delegacionMunicipio')) { <p class="mt-0.5 text-xs text-red-600">Campo obligatorio</p> }
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Estado <span class="text-red-500">*</span></label>
+            <ng-select
+              class="my-select w-full"
+              [items]="estadosActivos()"
+              bindLabel="nombre"
+              bindValue="nombre"
+              formControlName="estado"
+              placeholder="Seleccionar"
+              [clearable]="true"
+              [ngClass]="invalidF('estado') ? 'input-error' : ''">
+            </ng-select>
+            @if (invalidF('estado')) { <p class="mt-0.5 text-xs text-red-600">Campo obligatorio</p> }
+          </div>
+
+        </div>
+
+        <!-- ── Observaciones ── -->
+        <div class="relative flex items-center">
+          <div class="flex-grow border-t border-gray-200"></div>
+          <span class="mx-3 text-xs font-semibold uppercase tracking-wider text-gray-400">Observaciones</span>
+          <div class="flex-grow border-t border-gray-200"></div>
+        </div>
+
+        <textarea [formControl]="obsControl" rows="3"
+          class="block w-full input px-3 py-1.5 text-sm"
+          placeholder="Observaciones adicionales..."
+          autocomplete="off"></textarea>
+
+        <!-- ── Resultado de Tipificación ── -->
+        <div class="relative flex items-center">
+          <div class="flex-grow border-t border-gray-200"></div>
+          <span class="mx-3 text-xs font-semibold uppercase tracking-wider text-gray-400">Resultado de Tipificación</span>
+          <div class="flex-grow border-t border-gray-200"></div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-gray-600 mb-1">
+            Resultado / Motivo <span class="text-red-500">*</span>
+          </label>
+          <ng-select
+            class="my-select w-full"
+            [items]="tematicosActivos()"
+            bindLabel="label"
+            bindValue="tematicoID"
+            formControlName="tematicoID"
+            placeholder="Seleccionar resultado"
+            [clearable]="true"
+            [ngClass]="invalidF('tematicoID') ? 'input-error' : ''">
+          </ng-select>
+          @if (invalidF('tematicoID')) {
+            <p class="mt-0.5 text-xs text-red-600">Campo obligatorio</p>
+          }
+        </div>
+
+        <div class="flex justify-between pt-1">
+          <button type="button" (click)="prevStep()"
+            class="px-6 py-2 text-sm font-semibold bg-[#0D1D31] text-white rounded-lg hover:bg-[#0A1628] transition-colors">
+            Anterior
+          </button>
+          <button type="submit"
+            [disabled]="createRegistroVentaCompletoUseCase.loading()"
+            class="px-6 py-2 rounded-lg text-sm font-semibold text-white bg-secondary hover:bg-secondary-dark active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+            @if (createRegistroVentaCompletoUseCase.loading()) {
+              <span class="flex items-center gap-2">
+                <svg class="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
+                  <path class="opacity-75" fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                  </path>
+                </svg>
+                Guardando...
+              </span>
+            } @else {
+              Registrar Venta
+            }
+          </button>
+        </div>
+
+      </form>
+    }
+
+  </div>
+</div>

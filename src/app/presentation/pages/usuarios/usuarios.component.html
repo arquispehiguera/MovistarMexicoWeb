@@ -1,0 +1,470 @@
+<div class="p-4 md:p-6">
+  <!-- Header de página -->
+  <div class="mb-6">
+    <h1 class="text-title text-gray-900 mb-1">Gestión de Usuarios</h1>
+    <p class="text-body-small text-gray-500">Listado completo de usuarios del sistema</p>
+  </div>
+
+  @if (isLoading()) {
+  <div class="flex justify-center items-center py-12">
+    <app-spinner></app-spinner>
+  </div>
+  }
+
+  @if (!isLoading()) {
+  <div class="table-container">
+    <!-- Toolbar de búsqueda y acciones -->
+    <div class="table-toolbar">
+      <div class="table-search">
+        <lucide-icon [img]="SearchIcon" class="table-search-icon" [strokeWidth]="2"></lucide-icon>
+        <input type="text"
+          [value]="searchTerm()"
+          (input)="applyFilter($any($event.target).value)"
+          placeholder="Buscar por nombre, correo, username..."
+          class="table-search-input">
+        @if (searchTerm()) {
+          <button (click)="clearSearch()"
+            class="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 rounded-full transition-colors"
+            title="Limpiar búsqueda">
+            <lucide-icon [img]="XIcon" class="size-4 text-gray-400" [strokeWidth]="2"></lucide-icon>
+          </button>
+        }
+      </div>
+
+      <div class="table-actions">
+        <button (click)="exportToCSV()"
+          class="table-action-btn table-action-btn-secondary"
+          matTooltip="Exportar a CSV">
+          <lucide-icon [img]="DownloadIcon" class="size-4" [strokeWidth]="1.5"></lucide-icon>
+          <span class="hidden sm:inline">CSV</span>
+        </button>
+
+        <button (click)="exportToPDF()"
+          class="table-action-btn table-action-btn-secondary"
+          matTooltip="Exportar a PDF">
+          <lucide-icon [img]="FileTextIcon" class="size-4" [strokeWidth]="1.5"></lucide-icon>
+          <span class="hidden sm:inline">PDF</span>
+        </button>
+
+        @if (!permissions.isReadOnly()) {
+          <button (click)="openModal()" class="button py-2 px-3 flex items-center gap-1.5">
+            <lucide-icon [img]="PlusIcon" class="size-4" [strokeWidth]="2"></lucide-icon>
+            <span class="hidden sm:inline">Nuevo</span>
+          </button>
+        }
+      </div>
+    </div>
+
+    <!-- Vista de TABLA para DESKTOP -->
+    <div class="hidden md:block overflow-x-auto">
+      <table mat-table [dataSource]="dataSource" matSort class="w-full">
+
+        <!-- Nombre Completo Column -->
+        <ng-container matColumnDef="nombreCompleto">
+          <th mat-header-cell *matHeaderCellDef>Usuario</th>
+          <td mat-cell *matCellDef="let usuario">
+            <div class="flex items-center gap-3">
+              <div class="flex flex-col">
+                <span class="font-medium text-gray-900">{{ usuario.nombreCompleto }}</span>
+                <span class="text-xs text-gray-500">@{{ usuario.username }}</span>
+              </div>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Correo Column -->
+        <ng-container matColumnDef="correo">
+          <th mat-header-cell *matHeaderCellDef>Correo</th>
+          <td mat-cell *matCellDef="let usuario">
+            <span class="text-gray-600">{{ usuario.correo }}</span>
+          </td>
+        </ng-container>
+
+        <!-- Perfil Column -->
+        <ng-container matColumnDef="idRol">
+          <th mat-header-cell *matHeaderCellDef>Perfil</th>
+          <td mat-cell *matCellDef="let usuario">
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border"
+              [ngClass]="getRolInfo(usuario.idRol).colorClass">
+              <lucide-icon [img]="getRolInfo(usuario.idRol).icon" class="w-3 h-3" [strokeWidth]="2"></lucide-icon>
+              {{ getRolInfo(usuario.idRol).label }}
+            </span>
+          </td>
+        </ng-container>
+
+        <!-- isLogged Column -->
+        <ng-container matColumnDef="isLogged">
+          <th mat-header-cell *matHeaderCellDef>Conexión</th>
+          <td mat-cell *matCellDef="let usuario">
+            <div class="flex items-center gap-2">
+              <span class="status-dot"
+                [ngClass]="usuario.isLogged ? 'status-dot-online' : 'status-dot-offline'">
+              </span>
+              <span class="text-xs text-gray-600">
+                {{ usuario.isLogged ? 'En línea' : 'Offline' }}
+              </span>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- lastConnection Column -->
+        <ng-container matColumnDef="lastConnection">
+          <th mat-header-cell *matHeaderCellDef>Última Conexión</th>
+          <td mat-cell *matCellDef="let usuario">
+            <span class="text-gray-500 text-xs">{{ formatDate(usuario.lastConnection) }}</span>
+          </td>
+        </ng-container>
+
+        <!-- Estado Column -->
+        <ng-container matColumnDef="estado">
+          <th mat-header-cell *matHeaderCellDef>Estado</th>
+          <td mat-cell *matCellDef="let usuario">
+            <span class="badge" [ngClass]="usuario.estado ? 'badge-success' : 'badge-danger'">
+              {{ usuario.estado ? 'Activo' : 'Inactivo' }}
+            </span>
+          </td>
+        </ng-container>
+
+        <!-- Acciones Column -->
+        <ng-container matColumnDef="acciones">
+          <th mat-header-cell *matHeaderCellDef class="text-right">Acciones</th>
+          <td mat-cell *matCellDef="let usuario">
+            <div class="table-actions-cell">
+              @if (!permissions.isReadOnly()) {
+                <button (click)="editUsuario(usuario)"
+                  class="table-action-btn table-action-btn-primary"
+                  matTooltip="Editar usuario">
+                  <lucide-icon [img]="UserPen" class="w-4 h-4" [strokeWidth]="1.5"></lucide-icon>
+                  <span class="hidden lg:inline">Editar</span>
+                </button>
+              } @else {
+                <span class="text-xs text-gray-400">Solo lectura</span>
+              }
+            </div>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+        <!-- Empty state -->
+        <tr class="mat-row" *matNoDataRow>
+          <td class="mat-cell" [attr.colspan]="displayedColumns.length">
+            <div class="table-empty">
+              <lucide-icon [img]="Users" class="table-empty-icon" [strokeWidth]="1"></lucide-icon>
+              @if (queryParams().searchTerm) {
+                <p class="table-empty-title">No se encontraron resultados</p>
+                <p class="table-empty-description">Intenta con otra búsqueda</p>
+              } @else {
+                <p class="table-empty-title">No hay usuarios registrados</p>
+                @if (!permissions.isReadOnly()) {
+                  <p class="table-empty-description mb-4">Comienza agregando tu primer usuario</p>
+                  <button (click)="openModal()" class="button px-4 py-2 flex items-center gap-2">
+                    <lucide-icon [img]="PlusIcon" class="w-4 h-4" [strokeWidth]="1.5"></lucide-icon>
+                    Crear Usuario
+                  </button>
+                } @else {
+                  <p class="table-empty-description">No tienes permisos para crear usuarios</p>
+                }
+              }
+            </div>
+          </td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- Vista de CARDS para MÓVILES -->
+    <div class="md:hidden p-4 space-y-3">
+      @for (usuario of dataSource.data; track usuario.idUsuario) {
+      <div class="table-mobile-card">
+        <div class="table-mobile-card-header">
+          <div class="flex-1 min-w-0">
+            <h3 class="table-mobile-card-title truncate">{{ usuario.nombreCompleto }}</h3>
+            <p class="table-mobile-card-subtitle">@{{ usuario.username }}</p>
+          </div>
+          <span class="badge" [ngClass]="usuario.estado ? 'badge-success' : 'badge-danger'">
+            {{ usuario.estado ? 'Activo' : 'Inactivo' }}
+          </span>
+        </div>
+
+        <div class="space-y-1">
+          <div class="table-mobile-card-row">
+            <span class="table-mobile-card-label">Correo</span>
+            <span class="table-mobile-card-value truncate">{{ usuario.correo }}</span>
+          </div>
+
+          <div class="table-mobile-card-row">
+            <span class="table-mobile-card-label">Perfil</span>
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border"
+              [ngClass]="getRolInfo(usuario.idRol).colorClass">
+              <lucide-icon [img]="getRolInfo(usuario.idRol).icon" class="w-3 h-3" [strokeWidth]="2"></lucide-icon>
+              {{ getRolInfo(usuario.idRol).label }}
+            </span>
+          </div>
+
+          <div class="table-mobile-card-row">
+            <span class="table-mobile-card-label">Estado</span>
+            <div class="flex items-center gap-2">
+              <span class="status-dot" [ngClass]="usuario.isLogged ? 'status-dot-online' : 'status-dot-offline'"></span>
+              <span class="text-xs text-gray-600">{{ usuario.isLogged ? 'En línea' : 'Offline' }}</span>
+            </div>
+          </div>
+
+          <div class="table-mobile-card-row">
+            <span class="table-mobile-card-label">Última conexión</span>
+            <span class="table-mobile-card-value text-xs">{{ formatDate(usuario.lastConnection) }}</span>
+          </div>
+        </div>
+
+        @if (!permissions.isReadOnly()) {
+          <div class="table-mobile-card-actions">
+            <button (click)="editUsuario(usuario)"
+              class="table-action-btn table-action-btn-primary flex-1 justify-center">
+              <lucide-icon [img]="UserPen" class="w-4 h-4" [strokeWidth]="1.5"></lucide-icon>
+              Editar
+            </button>
+          </div>
+        }
+      </div>
+      }
+
+      @if (dataSource.data.length === 0) {
+        <div class="table-empty py-12">
+          <lucide-icon [img]="Users" class="table-empty-icon" [strokeWidth]="1"></lucide-icon>
+          @if (queryParams().searchTerm) {
+            <p class="table-empty-title">No se encontraron resultados</p>
+            <p class="table-empty-description">Intenta con otra búsqueda</p>
+          } @else {
+            <p class="table-empty-title">No hay usuarios registrados</p>
+            @if (!permissions.isReadOnly()) {
+              <p class="table-empty-description mb-4">Comienza agregando tu primer usuario</p>
+              <button (click)="openModal()" class="button px-4 py-2 flex items-center gap-2">
+                <lucide-icon [img]="PlusIcon" class="w-4 h-4" [strokeWidth]="1.5"></lucide-icon>
+                Crear Usuario
+              </button>
+            } @else {
+              <p class="table-empty-description">No tienes permisos para crear usuarios</p>
+            }
+          }
+        </div>
+      }
+    </div>
+
+    <!-- Paginación -->
+    @if (totalCount() > 0) {
+    <div class="table-pagination">
+      <div class="flex flex-col sm:flex-row items-center gap-3">
+        <span class="table-pagination-info">
+          Mostrando <strong>{{ (queryParams().pageNumber - 1) * queryParams().pageSize + 1 }}</strong> -
+          <strong>{{ Math.min(queryParams().pageNumber * queryParams().pageSize, totalCount()) }}</strong> de
+          <strong>{{ totalCount() }}</strong>
+        </span>
+
+        <div class="flex items-center gap-2">
+          <label class="text-xs text-gray-500">Mostrar:</label>
+          <ng-select
+            class="my-select w-20"
+            [items]="pageSizeOptions"
+            bindLabel="label"
+            bindValue="value"
+            [ngModel]="queryParams().pageSize"
+            (ngModelChange)="changePageSize($event)"
+            [clearable]="false"
+            [searchable]="false"
+            [appendTo]="'body'">
+          </ng-select>
+        </div>
+      </div>
+
+      @if (totalPages() > 1) {
+      <div class="table-pagination-controls">
+        <button (click)="previousPage()"
+          [disabled]="queryParams().pageNumber === 1"
+          class="table-pagination-btn">
+          <lucide-icon [img]="ChevronLeftIcon" class="w-4 h-4" [strokeWidth]="2"></lucide-icon>
+        </button>
+
+        @for (page of getPageNumbers(); track $index) {
+          @if (page === '...') {
+            <span class="px-2 text-gray-400">...</span>
+          } @else {
+            <button (click)="goToPage(+page)"
+              class="table-pagination-btn"
+              [ngClass]="{'table-pagination-btn-active': queryParams().pageNumber === page}">
+              {{ page }}
+            </button>
+          }
+        }
+
+        <button (click)="nextPage()"
+          [disabled]="queryParams().pageNumber === totalPages()"
+          class="table-pagination-btn">
+          <lucide-icon [img]="ChevronRightIcon" class="w-4 h-4" [strokeWidth]="2"></lucide-icon>
+        </button>
+      </div>
+      }
+    </div>
+    }
+  </div>
+  }
+</div>
+
+<!-- Modal para Usuario -->
+<app-modal [title]="isEditMode() ? 'Editar Usuario' : 'Nuevo Usuario'" [isOpen]="isModalOpen()" [size]="'xl'"
+  (closeModal)="closeModal()">
+  <form [formGroup]="usuarioForm" (ngSubmit)="onSubmitForm()" class="space-y-4">
+
+    <!-- Búsqueda LDAP (solo en modo crear) -->
+    @if (!isEditMode()) {
+    <div class="bg-primary/5 border border-primary/20 rounded-xl p-4">
+      <label class="block text-sm font-semibold text-gray-900 mb-1">
+        Buscar Usuario en Active Directory
+      </label>
+      <p class="text-xs text-gray-500 mb-3">
+        Ingrese el nombre de usuario para autocompletar los datos desde LDAP
+      </p>
+      <div class="flex gap-2">
+        <input type="text" [value]="ldapSearchTerm()" (input)="ldapSearchTerm.set($any($event.target).value)"
+          (keyup.enter)="searchUserInLDAP()" placeholder="Ej: username"
+          class="input flex-1" />
+        <button type="button" (click)="searchUserInLDAP()" [disabled]="isSearchingLDAP()"
+          class="button px-4 py-2 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+          @if (isSearchingLDAP()) {
+          <app-spinner></app-spinner>
+          <span>Buscando...</span>
+          } @else {
+          <lucide-icon [img]="SearchIcon" class="w-4 h-4" [strokeWidth]="1.5"></lucide-icon>
+          <span>Buscar</span>
+          }
+        </button>
+      </div>
+    </div>
+    }
+
+    <!-- Sección 1: Información Personal -->
+    <div class="border-t border-gray-100 pt-4">
+      <h3 class="text-sm font-semibold text-gray-900 mb-3">Información Personal</h3>
+      <div class="space-y-3">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">
+              Nombres <span class="text-red-500">*</span>
+            </label>
+            <input type="text" formControlName="nombres"
+              class="w-full py-2 px-3"
+              [ngClass]="invalid('nombres') ? 'input-error' : 'input'"
+              placeholder="Ingrese los nombres" />
+            @if (invalid('nombres')) {
+            <p class="text-red-500 text-xs mt-1">Los nombres son requeridos</p>
+            }
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">
+              Apellido Paterno <span class="text-red-500">*</span>
+            </label>
+            <input type="text" formControlName="apellidoPaterno"
+              class="w-full py-2 px-3"
+              [ngClass]="invalid('apellidoPaterno') ? 'input-error' : 'input'"
+              placeholder="Ingrese apellido paterno" />
+            @if (invalid('apellidoPaterno')) {
+            <p class="text-red-500 text-xs mt-1">El apellido paterno es requerido</p>
+            }
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-gray-600 mb-1">Apellido Materno</label>
+          <input type="text" formControlName="apellidoMaterno"
+            class="input w-full py-2 px-3"
+            placeholder="Ingrese el apellido materno (opcional)" />
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-gray-600 mb-1">
+            Correo Electrónico <span class="text-red-500">*</span>
+          </label>
+          <input type="email" formControlName="correo"
+            class="w-full py-2 px-3"
+            [ngClass]="invalid('correo') ? 'input-error' : 'input'"
+            placeholder="ejemplo@correo.com" />
+          @if (invalid('correo')) {
+          <p class="text-red-500 text-xs mt-1">
+            @if (usuarioForm.get('correo')?.hasError('required')) {
+            El correo es requerido
+            }
+            @if (usuarioForm.get('correo')?.hasError('email')) {
+            El correo debe ser válido
+            }
+          </p>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Sección 2: Datos de Acceso -->
+    <div class="border-t border-gray-100 pt-4">
+      <h3 class="text-sm font-semibold text-gray-900 mb-3">Datos de Acceso</h3>
+      <div class="space-y-3">
+        <div>
+          <label class="block text-xs font-medium text-gray-600 mb-1">
+            Nombre de Usuario <span class="text-red-500">*</span>
+          </label>
+          <input type="text" formControlName="username" readonly
+            class="w-full py-2 px-3 bg-gray-50 cursor-not-allowed"
+            [ngClass]="invalid('username') ? 'input-error' : 'input'"
+            placeholder="Se completará automáticamente" />
+          @if (invalid('username')) {
+          <p class="text-red-500 text-xs mt-1">El usuario es requerido</p>
+          }
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-gray-600 mb-1">
+            Perfil / Rol <span class="text-red-500">*</span>
+          </label>
+          <ng-select class="my-select w-full"
+            [items]="perfilRepo.perfiles()"
+            bindLabel="nombreRol"
+            bindValue="rolID"
+            formControlName="rolID"
+            placeholder="Seleccione un perfil"
+            [ngClass]="invalid('rolID') ? 'ng-select-error' : ''">
+          </ng-select>
+          @if (invalid('rolID')) {
+          <p class="text-red-500 text-xs mt-1">El perfil es requerido</p>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Sección 3: Configuración -->
+    @if (isEditMode()) {
+    <div class="border-t border-gray-100 pt-4">
+      <h3 class="text-sm font-semibold text-gray-900 mb-3">Configuración</h3>
+      <div>
+        <label class="block text-xs font-medium text-gray-600 mb-2">Estado del Usuario</label>
+        <label class="flex items-center gap-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors w-fit">
+          <input type="checkbox" [checked]="usuarioForm.get('activo')?.value" (change)="onEstadoChange($event)"
+            class="sr-only peer" />
+          <div
+            class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary relative">
+          </div>
+          <span class="text-sm font-medium text-gray-700">
+            {{ usuarioForm.get('activo')?.value ? 'Activo' : 'Inactivo' }}
+          </span>
+        </label>
+      </div>
+    </div>
+    }
+
+    <div modal-footer class="flex gap-3 justify-end pt-4">
+      <button type="button" (click)="closeModal()" class="button-secondary px-4 py-2">
+        Cancelar
+      </button>
+      <button type="submit" class="button px-4 py-2 disabled:opacity-50 disabled:cursor-not-allowed" [disabled]="usuarioForm.invalid">
+        {{ isEditMode() ? 'Actualizar' : 'Guardar' }}
+      </button>
+    </div>
+  </form>
+</app-modal>
