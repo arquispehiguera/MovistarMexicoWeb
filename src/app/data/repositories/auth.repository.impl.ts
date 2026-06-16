@@ -135,18 +135,18 @@ export class AuthRepositoryImpl extends AuthRepository {
   // GET USER DATA
   // =========================
   getUserData(username: string): Observable<Usuario> {
-    return this.http.get<ApiResponse<any>>(`${this.apiUrl}/user/${username}`).pipe(
-      map(wrapper => {
-        if (!wrapper || !wrapper.data) {
+    return this.http.get<any>(`${this.apiUrl}/user/${username}`).pipe(
+      map(response => {
+        const data = response?.data ?? response;
+
+        if (!data) {
           throw new Error('No se pudo obtener los datos del usuario');
         }
 
-        const response = wrapper.data;
-
         return UsuarioMapper.fromAuthResponse({
-          ...response,
+          ...data,
           rolID: 0,
-          grantDelete: response.grantDelete ?? 0,
+          grantDelete: data.grantDelete ?? 0,
           token: '',
           refreshToken: '',
           expiresIn: 0

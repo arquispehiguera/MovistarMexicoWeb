@@ -176,7 +176,7 @@ export class Usuarios implements OnInit, AfterViewInit {
       nombres: ['', Validators.required],
       apellidoPaterno: ['', Validators.required],
       apellidoMaterno: [''],
-      correo: ['', [Validators.required, Validators.email]],
+      correo: ['', [Validators.email]],
       username: ['', Validators.required],
       rolID: [null, Validators.required],
       activo: [true]
@@ -363,7 +363,6 @@ export class Usuarios implements OnInit, AfterViewInit {
     try {
       const usuario = await firstValueFrom(this.getUserDataUseCase.execute(username));
 
-      // Autocompletar el formulario con los datos del LDAP
       this.usuarioForm.patchValue({
         nombres: usuario.nombres,
         apellidoPaterno: usuario.apellidoPaterno,
@@ -373,7 +372,9 @@ export class Usuarios implements OnInit, AfterViewInit {
       });
 
       this.toast.success('Usuario encontrado', `Se encontró el usuario ${usuario.nombres} ${usuario.apellidoPaterno} en LDAP`);
-    }  finally {
+    } catch {
+      this.toast.error('No encontrado', `No se encontró el usuario "${username}" en el directorio activo`);
+    } finally {
       this.isSearchingLDAP.set(false);
     }
   }
