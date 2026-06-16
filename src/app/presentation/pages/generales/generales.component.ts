@@ -6,6 +6,7 @@ import { LucideAngularModule, Plus, X, Search } from 'lucide-angular';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { ModalComponent } from '../../components/modal/modal.component';
 import { PermissionService } from '../../../core/services/permission.service';
+import { ToastService } from '../../../core/services/toast.service';
 
 import { GetTiposLineaUseCase, CreateTipoLineaUseCase, UpdateTipoLineaUseCase } from '../../../domain/use-cases/tipo-linea.use-cases';
 import { TipoLinea } from '../../../domain/entities/tipo-linea.entity';
@@ -93,6 +94,7 @@ export class GeneralesComponent implements OnInit {
     public getEstadosMexicoUseCase: GetEstadosMexicoUseCase,
     public createEstadoMexicoUseCase: CreateEstadoMexicoUseCase,
     public updateEstadoMexicoUseCase: UpdateEstadoMexicoUseCase,
+    private toast: ToastService,
   ) {
     this.itemForm = this.fb.group({
       nombre: ['', Validators.required],
@@ -172,6 +174,7 @@ export class GeneralesComponent implements OnInit {
         case 'planes-dscto':       await firstValueFrom(this.createPlanDsctoUseCase.execute({ nombre, monto: Number(monto), activo })); break;
         case 'estados-mexico':     await firstValueFrom(this.createEstadoMexicoUseCase.execute({ nombre, activo })); break;
       }
+      this.toast.success('Éxito', 'Registro guardado correctamente');
       this.closeModal();
     } catch (err) {
       console.error('Error saving item:', err);
