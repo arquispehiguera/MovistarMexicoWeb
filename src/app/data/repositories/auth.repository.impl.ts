@@ -11,6 +11,7 @@ import { environment } from '../../../environments/environment';
 import { UsuarioRepository } from '../../domain/repositories/usuario.repository';
 import { ApiResponse } from '../../domain/models/api-response.model';
 import { AuthState } from '../state/auth.state';
+import { toPeruISOString } from '../../core/utils/date.utils';
 
 
 @Injectable()
@@ -79,7 +80,7 @@ export class AuthRepositoryImpl extends AuthRepository {
 
         // 5️⃣ Actualizar estado de conexión en el servidor
         return this.usuarioRepository.updateConnectionStatus(usuario.usuarioID, {
-          lastConnection: new Date().toISOString(),
+          lastConnection: toPeruISOString(),
           isLogged: true
         });
       }),
@@ -116,7 +117,7 @@ export class AuthRepositoryImpl extends AuthRepository {
     // Actualizar estado de conexión en el servidor
     if (currentUser?.usuarioID) {
       return this.usuarioRepository.updateConnectionStatus(currentUser.usuarioID, {
-        lastConnection: new Date().toISOString(),
+        lastConnection: toPeruISOString(),
         isLogged: false
       }).pipe(
         map(() => { cleanup(); }),

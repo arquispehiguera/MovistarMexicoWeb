@@ -8,6 +8,7 @@ import { NgxMaskDirective } from 'ngx-mask';
 import { CustomDatepickerComponent } from '../../components/custom-datepicker/custom-datepicker.component';
 import { CreateRegistroVentaCompletoUseCase } from '../../../domain/use-cases/registro-venta.use-cases';
 import { CreateRegistroVentaCompletoDto } from '../../../domain/dtos/registro-venta.dtos';
+import { toPeruISOString } from '../../../core/utils/date.utils';
 import { CreateDireccionEntregaUseCase } from '../../../domain/use-cases/direccion-entrega.use-cases';
 import { CreateDireccionFacturacionUseCase } from '../../../domain/use-cases/direccion-facturacion.use-cases';
 import { GetTiposLineaUseCase } from '../../../domain/use-cases/tipo-linea.use-cases';
@@ -266,9 +267,9 @@ export class TipificacionComponent implements OnInit, OnDestroy {
         planOriginal:       v.planOriginal || null,
         planDcto:           v.planDcto || null,
         observaciones:      v.observaciones || null,
-        fechaInicioGestion: this.fechaIngestion()?.toISOString() ?? null,
-        fechaFinGestion:    this.fechaFinIngestion()?.toISOString() ?? null,
-        fechaRegistro:      new Date().toISOString()
+        fechaInicioGestion: this.fechaIngestion() ? toPeruISOString(this.fechaIngestion()!) : null,
+        fechaFinGestion:    this.fechaFinIngestion() ? toPeruISOString(this.fechaFinIngestion()!) : null,
+        fechaRegistro:      toPeruISOString()
       },
       direccionEntrega: {
         calle:               e.calle || null,
