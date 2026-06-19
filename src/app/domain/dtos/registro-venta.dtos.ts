@@ -40,6 +40,7 @@ export interface DireccionCompletoPayload {
   delegacionMunicipio: string | null;
   estado: string | null;
   direccionCompleta: string | null;
+  cav?: string | null;
 }
 
 export interface CreateRegistroVentaCompletoDto {
@@ -69,6 +70,7 @@ export interface CreateRegistroVentaCompletoDto {
     planOriginal: string | null;
     planDcto: string | null;
     observaciones: string | null;
+    fvc: string | null;
     fechaInicioGestion: string | null;
     fechaFinGestion: string | null;
     fechaRegistro: string | null;

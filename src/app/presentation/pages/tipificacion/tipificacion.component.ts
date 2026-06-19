@@ -19,6 +19,7 @@ import { GetPlanesOriginalesUseCase } from '../../../domain/use-cases/plan-origi
 import { GetPlanesDsctoUseCase } from '../../../domain/use-cases/plan-dscto.use-cases';
 import { GetEstadosMexicoUseCase } from '../../../domain/use-cases/estado-mexico.use-cases';
 import { GetTematicosUseCase } from '../../../domain/use-cases/tematicos.use-cases';
+import { GetFvcsUseCase } from '../../../domain/use-cases/fvc.use-cases';
 import { ToastService } from '../../../core/services/toast.service';
 import { isInvalid } from '../../../shared/utils/form.utils';
 import { APP_ICONS } from '../../../core/config/icons.config';
@@ -106,6 +107,10 @@ export class TipificacionComponent implements OnInit, OnDestroy {
       .map(t => ({ ...t, label: `${t.resultado} — ${t.motivo}` }))
   );
 
+  fvcsActivos = computed(() =>
+    this.getFvcsUseCase.fvcs().filter(f => f.activo)
+  );
+
   constructor(
     private fb: FormBuilder,
     public createRegistroVentaCompletoUseCase: CreateRegistroVentaCompletoUseCase,
@@ -119,6 +124,7 @@ export class TipificacionComponent implements OnInit, OnDestroy {
     public getPlanesDsctoUseCase: GetPlanesDsctoUseCase,
     public getEstadosMexicoUseCase: GetEstadosMexicoUseCase,
     public getTematicosUseCase: GetTematicosUseCase,
+    public getFvcsUseCase: GetFvcsUseCase,
     private toast: ToastService,
     private authState: GetAuthStateUseCase
   ) {
@@ -135,7 +141,8 @@ export class TipificacionComponent implements OnInit, OnDestroy {
       this.getPlanesOriginalesUseCase.execute(),
       this.getPlanesDsctoUseCase.execute(),
       this.getEstadosMexicoUseCase.execute(),
-      this.getTematicosUseCase.execute()
+      this.getTematicosUseCase.execute(),
+      this.getFvcsUseCase.execute()
     ]).subscribe();
 
     this.formFacturacion.get('mismaQueEntrega')!.valueChanges.subscribe((checked: boolean) => {
@@ -267,6 +274,7 @@ export class TipificacionComponent implements OnInit, OnDestroy {
         planOriginal:       v.planOriginal || null,
         planDcto:           v.planDcto || null,
         observaciones:      v.observaciones || null,
+        fvc:                v.fvc || null,
         fechaInicioGestion: this.fechaIngestion() ? toPeruISOString(this.fechaIngestion()!) : null,
         fechaFinGestion:    this.fechaFinIngestion() ? toPeruISOString(this.fechaFinIngestion()!) : null,
         fechaRegistro:      toPeruISOString()
@@ -281,7 +289,8 @@ export class TipificacionComponent implements OnInit, OnDestroy {
         colonia:             e.colonia || null,
         delegacionMunicipio: e.delegacionMunicipio || null,
         estado:              e.estado || null,
-        direccionCompleta:   e.direccionCompleta || null
+        direccionCompleta:   e.direccionCompleta || null,
+        cav:                 e.cav || null
       },
       direccionFacturacion: {
         calle:               f.calle || null,
@@ -330,14 +339,15 @@ export class TipificacionComponent implements OnInit, OnDestroy {
       nip:               ['', [Validators.required, onlyDigits(4)]],
       companiaDonante:   [null, Validators.required],
       tipoLinea:         [null, Validators.required],
-      dn:                ['', [Validators.required, onlyDigits(9)]],
-      telfContacto1:     ['', optDigits(9)],
-      telfContacto2:     ['', optDigits(9)],
+      dn:                ['', [Validators.required, onlyDigits(10)]],
+      telfContacto1:     ['', optDigits(10)],
+      telfContacto2:     ['', optDigits(10)],
       metodoEntrega:     [null, Validators.required],
       ciclosFacturacion: [null, Validators.required],
       plan:              [null, Validators.required],
       planOriginal:      [null],
       planDcto:          [null],
+      fvc:               [null, Validators.required],
       observaciones:     ['']
     });
   }
@@ -353,7 +363,8 @@ export class TipificacionComponent implements OnInit, OnDestroy {
       codigoPostal:        ['', Validators.required],
       colonia:             ['', Validators.required],
       delegacionMunicipio: ['', Validators.required],
-      estado:              [null, Validators.required]
+      estado:              [null, Validators.required],
+      cav:                 ['']
     });
   }
 

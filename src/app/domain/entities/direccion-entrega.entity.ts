@@ -12,6 +12,7 @@ export class DireccionEntrega {
     public colonia: string | null,
     public delegacionMunicipio: string | null,
     public estado: string | null,
-    public direccionCompleta: string | null
+    public direccionCompleta: string | null,
+    public cav: string | null
   ) {}
 }

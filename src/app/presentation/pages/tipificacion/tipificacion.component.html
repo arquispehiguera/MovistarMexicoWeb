@@ -219,16 +219,16 @@
 
           <div>
             <label class="block text-xs font-medium text-gray-600 mb-1">
-              Número a Portar <span class="text-red-500">*</span> <span class="text-gray-400">(9 díg.)</span>
+              Número a Portar <span class="text-red-500">*</span> <span class="text-gray-400">(10 díg.)</span>
             </label>
             <input type="text" formControlName="dn"
-              mask="000000000" [showMaskTyped]="false"
+              mask="0000000000" [showMaskTyped]="false"
               class="block w-full input px-3 py-1.5 text-sm"
               [ngClass]="invalid('dn') ? 'input-error' : ''"
-              placeholder="#########"
+              placeholder="##########"
               autocomplete="off" data-form-type="other" data-lpignore="true" />
             @if (invalid('dn')) {
-              <p class="mt-0.5 text-xs text-red-600">Exactamente 9 dígitos</p>
+              <p class="mt-0.5 text-xs text-red-600">Exactamente 10 dígitos</p>
             }
           </div>
 
@@ -311,31 +311,31 @@
 
           <div>
             <label class="block text-xs font-medium text-gray-600 mb-1">
-              Teléfono de Contacto 1 <span class="text-gray-400">(9 díg.)</span>
+              Teléfono de Contacto 1 <span class="text-gray-400">(10 díg.)</span>
             </label>
             <input type="text" formControlName="telfContacto1"
-              mask="000000000" [showMaskTyped]="false"
+              mask="0000000000" [showMaskTyped]="false"
               class="block w-full input px-3 py-1.5 text-sm"
               [ngClass]="invalid('telfContacto1') ? 'input-error' : ''"
-              placeholder="#########"
+              placeholder="##########"
               autocomplete="off" data-form-type="other" data-lpignore="true" />
             @if (invalid('telfContacto1')) {
-              <p class="mt-0.5 text-xs text-red-600">Exactamente 9 dígitos</p>
+              <p class="mt-0.5 text-xs text-red-600">Exactamente 10 dígitos</p>
             }
           </div>
 
           <div>
             <label class="block text-xs font-medium text-gray-600 mb-1">
-              Teléfono de Contacto 2 <span class="text-gray-400">(9 díg.)</span>
+              Teléfono de Contacto 2 <span class="text-gray-400">(10 díg.)</span>
             </label>
             <input type="text" formControlName="telfContacto2"
-              mask="000000000" [showMaskTyped]="false"
+              mask="0000000000" [showMaskTyped]="false"
               class="block w-full input px-3 py-1.5 text-sm"
               [ngClass]="invalid('telfContacto2') ? 'input-error' : ''"
-              placeholder="#########"
+              placeholder="##########"
               autocomplete="off" data-form-type="other" data-lpignore="true" />
             @if (invalid('telfContacto2')) {
-              <p class="mt-0.5 text-xs text-red-600">Exactamente 9 dígitos</p>
+              <p class="mt-0.5 text-xs text-red-600">Exactamente 10 dígitos</p>
             }
           </div>
 
@@ -431,6 +431,25 @@
               placeholder="Seleccionar"
               [clearable]="true">
             </ng-select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">
+              FVC <span class="text-red-500">*</span>
+            </label>
+            <ng-select
+              class="my-select w-full"
+              [items]="fvcsActivos()"
+              bindLabel="descripcion"
+              bindValue="descripcion"
+              formControlName="fvc"
+              placeholder="Seleccionar"
+              [clearable]="true"
+              [ngClass]="invalid('fvc') ? 'input-error' : ''">
+            </ng-select>
+            @if (invalid('fvc')) {
+              <p class="mt-0.5 text-xs text-red-600">Campo obligatorio</p>
+            }
           </div>
 
         </div>
@@ -558,6 +577,13 @@
                 [ngClass]="invalidE('estado') ? 'input-error' : ''">
               </ng-select>
               @if (invalidE('estado')) { <p class="mt-0.5 text-xs text-red-600">Campo obligatorio</p> }
+            </div>
+
+            <div>
+              <label class="block text-xs font-medium text-gray-600 mb-1">CAV</label>
+              <input type="text" formControlName="cav"
+                class="block w-full input px-3 py-1.5 text-sm"
+                autocomplete="off" data-form-type="other" data-lpignore="true" />
             </div>
 
         </div>

@@ -25,6 +25,7 @@ export class RegistroVenta {
     public planOriginal: string | null,
     public planDcto: string | null,
     public observaciones: string | null,
+    public fvc: string | null,
     public fechaInicioGestion: Date | string | null,
     public fechaFinGestion: Date | string | null,
     public fechaRegistro: Date | string | null

@@ -15,7 +15,8 @@ export class DireccionEntregaMapper {
       data.colonia,
       data.delegacionMunicipio,
       data.estado,
-      data.direccionCompleta
+      data.direccionCompleta,
+      data.cav ?? null
     );
   }
 }

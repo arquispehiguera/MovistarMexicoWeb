@@ -21,6 +21,7 @@ import { PlanDsctoRepository } from '../../domain/repositories/plan-dscto.reposi
 import { EstadoMexicoRepository } from '../../domain/repositories/estado-mexico.repository';
 import { DireccionEntregaRepository } from '../../domain/repositories/direccion-entrega.repository';
 import { DireccionFacturacionRepository } from '../../domain/repositories/direccion-facturacion.repository';
+import { FvcRepository } from '../../domain/repositories/fvc.repository';
 
 import { AuthRepositoryImpl } from '../../data/repositories/auth.repository.impl';
 import { PerfilRepositoryImpl } from '../../data/repositories/perfil.repository.impl';
@@ -44,6 +45,7 @@ import { PlanDsctoRepositoryImpl } from '../../data/repositories/plan-dscto.repo
 import { EstadoMexicoRepositoryImpl } from '../../data/repositories/estado-mexico.repository.impl';
 import { DireccionEntregaRepositoryImpl } from '../../data/repositories/direccion-entrega.repository.impl';
 import { DireccionFacturacionRepositoryImpl } from '../../data/repositories/direccion-facturacion.repository.impl';
+import { FvcRepositoryImpl } from '../../data/repositories/fvc.repository.impl';
 
 export const repositoryProviders: Provider[] = [
   { provide: AuthRepository,                  useClass: AuthRepositoryImpl },
@@ -68,4 +70,5 @@ export const repositoryProviders: Provider[] = [
   { provide: EstadoMexicoRepository,          useClass: EstadoMexicoRepositoryImpl },
   { provide: DireccionEntregaRepository,      useClass: DireccionEntregaRepositoryImpl },
   { provide: DireccionFacturacionRepository,  useClass: DireccionFacturacionRepositoryImpl },
+  { provide: FvcRepository,                   useClass: FvcRepositoryImpl },
 ];

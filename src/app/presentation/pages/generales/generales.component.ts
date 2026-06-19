@@ -29,7 +29,10 @@ import { PlanDscto } from '../../../domain/entities/plan-dscto.entity';
 import { GetEstadosMexicoUseCase, CreateEstadoMexicoUseCase, UpdateEstadoMexicoUseCase } from '../../../domain/use-cases/estado-mexico.use-cases';
 import { EstadoMexico } from '../../../domain/entities/estado-mexico.entity';
 
-type TabType = 'tipos-linea' | 'metodos-entrega' | 'ciclos-facturacion' | 'planes' | 'planes-original' | 'planes-dscto' | 'estados-mexico';
+import { GetFvcsUseCase, CreateFvcUseCase, UpdateFvcUseCase } from '../../../domain/use-cases/fvc.use-cases';
+import { Fvc } from '../../../domain/entities/fvc.entity';
+
+type TabType = 'tipos-linea' | 'metodos-entrega' | 'ciclos-facturacion' | 'planes' | 'planes-original' | 'planes-dscto' | 'estados-mexico' | 'fvc';
 
 @Component({
   selector: 'app-generales',
@@ -67,6 +70,7 @@ export class GeneralesComponent implements OnInit {
     { value: 'planes-original',    label: 'Planes Original' },
     { value: 'planes-dscto',       label: 'Planes Descuento' },
     { value: 'estados-mexico',     label: 'Estados México' },
+    { value: 'fvc',                label: 'FVC' },
   ];
 
   itemForm!: FormGroup;
@@ -94,6 +98,9 @@ export class GeneralesComponent implements OnInit {
     public getEstadosMexicoUseCase: GetEstadosMexicoUseCase,
     public createEstadoMexicoUseCase: CreateEstadoMexicoUseCase,
     public updateEstadoMexicoUseCase: UpdateEstadoMexicoUseCase,
+    public getFvcsUseCase: GetFvcsUseCase,
+    public createFvcUseCase: CreateFvcUseCase,
+    public updateFvcUseCase: UpdateFvcUseCase,
     private toast: ToastService,
   ) {
     this.itemForm = this.fb.group({
@@ -113,6 +120,7 @@ export class GeneralesComponent implements OnInit {
       this.getPlanesOriginalesUseCase.execute(),
       this.getPlanesDsctoUseCase.execute(),
       this.getEstadosMexicoUseCase.execute(),
+      this.getFvcsUseCase.execute(),
     ]).subscribe({ error: err => console.error('Error loading generales:', err) });
   }
 
@@ -173,6 +181,7 @@ export class GeneralesComponent implements OnInit {
         case 'planes-original':    await firstValueFrom(this.createPlanOriginalUseCase.execute({ nombre, activo })); break;
         case 'planes-dscto':       await firstValueFrom(this.createPlanDsctoUseCase.execute({ nombre, monto: Number(monto), activo })); break;
         case 'estados-mexico':     await firstValueFrom(this.createEstadoMexicoUseCase.execute({ nombre, activo })); break;
+        case 'fvc':                await firstValueFrom(this.createFvcUseCase.execute({ descripcion: nombre, activo })); break;
       }
       this.toast.success('Éxito', 'Registro guardado correctamente');
       this.closeModal();
@@ -209,6 +218,10 @@ export class GeneralesComponent implements OnInit {
     this.updateEstadoMexicoUseCase.execute({ estadoId: item.estadoId, nombre: item.nombre, activo: !item.activo }).subscribe();
   }
 
+  toggleFvc(item: Fvc): void {
+    this.updateFvcUseCase.execute({ fvcId: item.fvcId, descripcion: item.descripcion, activo: !item.activo }).subscribe();
+  }
+
   getFilteredTiposLinea()      { const t = this.searchTerm().toLowerCase(); return this.getTiposLineaUseCase.tiposLinea().filter(i => i.nombre.toLowerCase().includes(t)); }
   getFilteredMetodosEntrega()  { const t = this.searchTerm().toLowerCase(); return this.getMetodosEntregaUseCase.metodosEntrega().filter(i => i.nombre.toLowerCase().includes(t)); }
   getFilteredCiclos()          { const t = this.searchTerm().toLowerCase(); return this.getCiclosFacturacionUseCase.ciclosFacturacion().filter(i => i.codigo.toLowerCase().includes(t)); }
@@ -216,6 +229,7 @@ export class GeneralesComponent implements OnInit {
   getFilteredPlanesOriginales(){ const t = this.searchTerm().toLowerCase(); return this.getPlanesOriginalesUseCase.planesOriginales().filter(i => i.nombre.toLowerCase().includes(t)); }
   getFilteredPlanesDscto()     { const t = this.searchTerm().toLowerCase(); return this.getPlanesDsctoUseCase.planesDscto().filter(i => i.nombre.toLowerCase().includes(t)); }
   getFilteredEstados()         { const t = this.searchTerm().toLowerCase(); return this.getEstadosMexicoUseCase.estados().filter(i => i.nombre.toLowerCase().includes(t)); }
+  getFilteredFvcs()            { const t = this.searchTerm().toLowerCase(); return this.getFvcsUseCase.fvcs().filter(i => i.descripcion.toLowerCase().includes(t)); }
 
   private getActiveList(): any[] {
     switch (this.activeTab()) {
@@ -226,6 +240,7 @@ export class GeneralesComponent implements OnInit {
       case 'planes-original':    return this.getPlanesOriginalesUseCase.planesOriginales();
       case 'planes-dscto':       return this.getPlanesDsctoUseCase.planesDscto();
       case 'estados-mexico':     return this.getEstadosMexicoUseCase.estados();
+      case 'fvc':                return this.getFvcsUseCase.fvcs();
     }
   }
 
@@ -240,7 +255,8 @@ export class GeneralesComponent implements OnInit {
            this.getPlanesUseCase.loading()           ||
            this.getPlanesOriginalesUseCase.loading() ||
            this.getPlanesDsctoUseCase.loading()      ||
-           this.getEstadosMexicoUseCase.loading();
+           this.getEstadosMexicoUseCase.loading() ||
+           this.getFvcsUseCase.loading();
   }
 
   isCicloTab(): boolean { return this.activeTab() === 'ciclos-facturacion'; }
@@ -255,6 +271,7 @@ export class GeneralesComponent implements OnInit {
       'planes-original':    'Nuevo Plan Original',
       'planes-dscto':       'Nuevo Plan Descuento',
       'estados-mexico':     'Nuevo Estado',
+      'fvc':                'Nuevo FVC',
     };
     return map[this.activeTab()];
   }
@@ -268,6 +285,7 @@ export class GeneralesComponent implements OnInit {
       'planes-original':    'Nuevo Plan Original',
       'planes-dscto':       'Nuevo Plan Dscto',
       'estados-mexico':     'Nuevo Estado',
+      'fvc':                'Nuevo FVC',
     };
     return map[this.activeTab()];
   }

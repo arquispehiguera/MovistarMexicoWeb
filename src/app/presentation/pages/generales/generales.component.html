@@ -240,6 +240,28 @@
           }
         }
 
+        @if (activeTab() === 'fvc') {
+          @if (getFilteredFvcs().length === 0) {
+            <div class="text-center py-12 text-gray-500">{{ searchTerm() ? 'Sin resultados' : 'No hay FVCs registrados' }}</div>
+          }
+          @for (item of getFilteredFvcs(); track item.fvcId) {
+            <div class="flex items-center justify-between p-4 hover:bg-gray-50 transition-colors">
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium text-gray-900">{{ item.descripcion }}</p>
+                <p class="text-xs text-gray-400 mt-0.5">ID: {{ item.fvcId }}</p>
+              </div>
+              <button (click)="!permissions.isReadOnly() && toggleFvc(item)"
+                class="ml-3 relative inline-flex h-6 w-11 shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none"
+                [class.bg-primary]="item.activo" [class.bg-gray-400]="!item.activo"
+                [class.cursor-pointer]="!permissions.isReadOnly()" [class.cursor-not-allowed]="permissions.isReadOnly()"
+                [disabled]="permissions.isReadOnly()" role="switch" [attr.aria-checked]="item.activo">
+                <span class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow transition duration-200 ease-in-out"
+                  [class.translate-x-5]="item.activo" [class.translate-x-0]="!item.activo"></span>
+              </button>
+            </div>
+          }
+        }
+
       </div>
     </div>
   </div>

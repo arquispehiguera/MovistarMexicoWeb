@@ -28,6 +28,7 @@ export class RegistroVentaMapper {
       data.planOriginal,
       data.planDcto,
       data.observaciones,
+      data.fvc,
       data.fechaInicioGestion,
       data.fechaFinGestion,
       data.fechaRegistro

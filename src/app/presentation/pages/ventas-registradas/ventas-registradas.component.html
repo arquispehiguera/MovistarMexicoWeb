@@ -449,6 +449,10 @@
               <span class="text-xs text-gray-500">NIP:</span>
               <span class="text-xs font-mono text-gray-900 min-w-0 break-all">{{ selectedVenta()!.nip || '-' }}</span>
             </div>
+            <div class="grid grid-cols-[auto_1fr] gap-x-2 gap-y-0.5">
+              <span class="text-xs text-gray-500">FVC:</span>
+              <span class="text-xs text-gray-900 min-w-0 break-words">{{ selectedVenta()!.fvc || '-' }}</span>
+            </div>
           </div>
         </div>
 
@@ -513,6 +517,10 @@
               <div class="grid grid-cols-[auto_1fr] gap-x-2 gap-y-0.5">
                 <span class="text-xs text-gray-500">Estado:</span>
                 <span class="text-xs text-gray-900 min-w-0">{{ direccionEntrega()!.estado || '-' }}</span>
+              </div>
+              <div class="grid grid-cols-[auto_1fr] gap-x-2 gap-y-0.5">
+                <span class="text-xs text-gray-500">CAV:</span>
+                <span class="text-xs text-gray-900 min-w-0 break-words">{{ direccionEntrega()!.cav || '-' }}</span>
               </div>
             } @else {
               <p class="text-xs text-gray-400 italic">Sin datos de dirección</p>
